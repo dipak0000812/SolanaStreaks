@@ -151,7 +151,10 @@ export default function DashboardPage() {
           currentMultiplier={currentMultiplier >= 2 ? "2.0x" : currentMultiplier >= 1.5 ? "1.5x" : "1.0x"}
           nextStreak={userStreak >= 10 ? 15 : userStreak >= 5 ? 10 : 5}
           onPurchase={() => {
-            console.log("Streak insurance purchased!");
+            const confirm = window.confirm("Purchase Streak Insurance for 0.1 SOL? This will protect your active streak.");
+            if (confirm) {
+              alert("Insurance purchased! Your streak is now protected.");
+            }
           }}
         />
 

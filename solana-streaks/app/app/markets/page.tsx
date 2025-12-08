@@ -7,6 +7,7 @@ import { Button } from "../components/ui/button";
 import Link from "next/link";
 import { LIVE_MARKETS } from "../../lib/mockData";
 import SocialBetting from "../components/SocialBetting";
+import BetModal from "../components/BetModal";
 
 const CATEGORIES = ["All", "Crypto", "Sports", "Gaming", "Community", "Other"];
 
@@ -14,6 +15,8 @@ export default function MarketsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [expandedMarket, setExpandedMarket] = useState<string | null>(null);
+  const [betModalOpen, setBetModalOpen] = useState(false);
+  const [selectedBetMarket, setSelectedBetMarket] = useState<typeof LIVE_MARKETS[0] | null>(null);
 
   const filteredMarkets = LIVE_MARKETS.filter(market => {
     const matchesSearch = market.question.toLowerCase().includes(searchQuery.toLowerCase());
@@ -21,8 +24,22 @@ export default function MarketsPage() {
     return matchesSearch && matchesCategory;
   });
 
+  const handleOpenBetModal = (market: typeof LIVE_MARKETS[0]) => {
+    setSelectedBetMarket(market);
+    setBetModalOpen(true);
+  };
+
   return (
     <div className="space-y-8">
+      {/* Bet Modal */}
+      {selectedBetMarket && (
+        <BetModal
+          isOpen={betModalOpen}
+          onClose={() => setBetModalOpen(false)}
+          market={selectedBetMarket}
+        />
+      )}
+
       {/* Header */}
       <div className="flex flex-col gap-6">
         <div>
@@ -94,6 +111,7 @@ export default function MarketsPage() {
             market={market}
             isExpanded={expandedMarket === market.id}
             onToggleExpand={() => setExpandedMarket(expandedMarket === market.id ? null : market.id)}
+            onPlaceBet={() => handleOpenBetModal(market)}
           />
         ))}
       </motion.div>
@@ -110,10 +128,11 @@ export default function MarketsPage() {
   );
 }
 
-function MarketCard({ market, isExpanded, onToggleExpand }: {
+function MarketCard({ market, isExpanded, onToggleExpand, onPlaceBet }: {
   market: typeof LIVE_MARKETS[0];
   isExpanded: boolean;
   onToggleExpand: () => void;
+  onPlaceBet: () => void;
 }) {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -137,16 +156,6 @@ function MarketCard({ market, isExpanded, onToggleExpand }: {
       <div className="absolute -inset-1 bg-gradient-to-r from-neon-green to-neon-purple rounded-2xl blur opacity-0 group-hover:opacity-20 transition-opacity duration-500" />
 
       <div className="relative glass-panel rounded-2xl border border-white/10 group-hover:border-neon-green/30 p-6 overflow-hidden transition-all">
-        {/* Trending Badge */}
-        {market.trending && (
-          <div className="absolute top-4 right-4">
-            <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-neon-pink/20 border border-neon-pink/30">
-              <Flame className="w-3 h-3 text-neon-pink" />
-              <span className="text-xs font-orbitron font-semibold text-neon-pink">HOT</span>
-            </div>
-          </div>
-        )}
-
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -155,6 +164,13 @@ function MarketCard({ market, isExpanded, onToggleExpand }: {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-neon-green"></span>
             </span>
             <span className="text-xs font-orbitron font-semibold text-neon-green uppercase">LIVE</span>
+            {/* Trending Badge - Moved here to prevent overlap */}
+            {market.trending && (
+              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-neon-pink/20 border border-neon-pink/30 ml-1">
+                <Flame className="w-3 h-3 text-neon-pink" />
+                <span className="text-xs font-orbitron font-semibold text-neon-pink">HOT</span>
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-1 text-xs text-gray-400">
             <Clock className="w-3 h-3" />
@@ -212,11 +228,12 @@ function MarketCard({ market, isExpanded, onToggleExpand }: {
           transition={{ duration: 0.2 }}
           className="space-y-2"
         >
-          <Link href={`/markets/${market.id}`}>
-            <button className="w-full py-3 rounded-xl bg-success-gradient hover:shadow-lg hover:shadow-neon-green/50 transition-shadow font-orbitron font-bold text-black">
-              PLACE BET
-            </button>
-          </Link>
+          <button
+            onClick={onPlaceBet}
+            className="w-full py-3 rounded-xl bg-success-gradient hover:shadow-lg hover:shadow-neon-green/50 transition-shadow font-orbitron font-bold text-black"
+          >
+            PLACE BET
+          </button>
 
           {/* Toggle Social Betting */}
           <button

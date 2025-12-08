@@ -45,7 +45,7 @@ export default function CreateMarketPage() {
             Market Creator
           </span>
         </motion.div>
-        
+
         <h1 className="font-orbitron font-black text-5xl md:text-6xl text-white mb-4">
           Create Market
         </h1>
@@ -90,7 +90,7 @@ export default function CreateMarketPage() {
                 {outcomes.length}/6
               </span>
             </label>
-            
+
             <div className="space-y-3">
               {outcomes.map((outcome, index) => (
                 <motion.div
@@ -140,11 +140,10 @@ export default function CreateMarketPage() {
                 <button
                   key={cat}
                   onClick={() => setCategory(cat)}
-                  className={`h-12 rounded-xl font-orbitron font-semibold text-sm transition-all ${
-                    category === cat
+                  className={`h-12 rounded-xl font-orbitron font-semibold text-sm transition-all ${category === cat
                       ? "bg-success-gradient text-black shadow-neon-green"
                       : "glass-panel border border-white/10 text-gray-400 hover:text-white hover:border-white/30"
-                  }`}
+                    }`}
                 >
                   {cat}
                 </button>
@@ -191,6 +190,28 @@ export default function CreateMarketPage() {
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
+            onClick={() => {
+              if (!question) {
+                alert("Please enter a market question!");
+                return;
+              }
+              if (outcomes.some(o => !o)) {
+                alert("Please fill in all outcomes or remove empty ones.");
+                return;
+              }
+              if (!endDate) {
+                alert("Please select a resolution date.");
+                return;
+              }
+
+              const confirm = window.confirm(`Create market "${question}" with fee 0.1 SOL?`);
+              if (confirm) {
+                alert("Market created successfully! (Demo Mode)");
+                setQuestion("");
+                setOutcomes(["", ""]);
+                setEndDate("");
+              }
+            }}
             className="w-full h-16 rounded-2xl bg-success-gradient font-orbitron font-bold text-xl text-black shadow-lg shadow-neon-green/50 hover:shadow-neon-green transition-shadow flex items-center justify-center gap-3"
           >
             <Sparkles className="w-6 h-6" />

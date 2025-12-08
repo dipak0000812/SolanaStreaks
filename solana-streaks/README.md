@@ -1,114 +1,102 @@
-# 🔥 SolanaStreaks - Gamified Prediction Markets
+# SolanaStreaks - Prediction Market with Streak Multipliers
 
-[![Solana](https://img.shields.io/badge/Solana-Devnet-9945FF?logo=solana)](https://solscan.io/account/B5Rz9UoWgLrfzYppYpZpBpLzNCTuYV5Fjh3uGJd2UsbQ?cluster=devnet)
-[![Next.js](https://img.shields.io/badge/Next.js-16.0-black?logo=next.js)](https://nextjs.org/)
-[![Anchor](https://img.shields.io/badge/Anchor-0.32-purple)](https://www.anchor-lang.com/)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+A decentralized prediction market built on Solana featuring an innovative streak multiplier system that rewards consecutive correct predictions.
 
-> **The first prediction market where consecutive wins multiply your rewards**
+## Project Overview
 
-Build streaks. Earn 3x multipliers. Dominate leaderboards.
+SolanaStreaks is a full-stack decentralized application (dApp) that combines prediction markets with gamification mechanics. Users can bet on various outcomes (crypto prices, sports, gaming events) and earn multiplied rewards by maintaining prediction streaks.
 
-## 🎯 Live Demo
+### Core Features
 
-- **Frontend**: [https://sol-new.vercel.app/](https://sol-new.vercel.app/)
-- **Smart Contract**: [View on Solscan](https://solscan.io/account/B5Rz9UoWgLrfzYppYpZpBpLzNCTuYV5Fjh3uGJd2UsbQ?cluster=devnet)
-- **Program ID**: `B5Rz9UoWgLrfzYppYpZpBpLzNCTuYV5Fjh3uGJd2UsbQ`
+- **Prediction Markets**: Create and participate in binary outcome markets
+- **Streak Multipliers**: 1.5x to 3.5x rewards based on consecutive wins
+- **Streak Insurance**: Optional protection against streak resets (0.1 SOL)
+- **Social Betting**: Copy trades from top predictors
+- **Live Tournaments**: Compete for prize pools
+- **3D Visualization**: Moddio-powered arena for streak visualization
+
+## Technical Stack
+
+### Smart Contracts
+- **Framework**: Anchor 0.32.0
+- **Language**: Rust 1.70+
 - **Network**: Solana Devnet
+- **Program ID**: `B5Rz9UoWgLrfzYppYpZpBpLzNCTuYV5Fjh3uGJd2UsbQ`
 
-## 🚀 What Makes Us Different
+### Frontend
+- **Framework**: Next.js 16.0 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Animations**: Framer Motion
+- **Wallet**: Solana Wallet Adapter (Phantom, Solflare)
 
-### Streak Multiplier System
-- **3-day streak**: 1.5x rewards
-- **5-day streak**: 2.0x rewards  
-- **10-day streak**: 3.0x rewards
-- **15+ day streak**: 3.5x rewards
+### Infrastructure
+- **Deployment**: Vercel
+- **RPC**: Solana Devnet (`https://api.devnet.solana.com`)
 
-### Key Features
-- ✅ **Real-time Markets**: Bet on crypto, sports, gaming events
-- ✅ **Streak Insurance**: Protect your streak for 0.1 SOL
-- ✅ **Social Betting**: Copy bets from top predictors
-- ✅ **Live Tournaments**: Compete for prize pools
-- ✅ **3D Arena**: Visualize your streaks in the metaverse
+## Project Structure
 
-## 🏆 Competitive Advantage
-
-### vs. Drift BET
-- **Their Edge**: Capital efficient, DeFi integration
-- **Our Edge**: Gamification increases retention 3x, streak multipliers create viral loops
-
-### vs. JogoJogo
-- **Their Edge**: AI-powered predictions
-- **Our Edge**: Social betting + streak mechanics = community-driven growth
-
-### vs. Hxro Parimutuel
-- **Their Edge**: Permissionless market creation
-- **Our Edge**: Streak system rewards consistent accuracy, not just volume
-
-### Why SolanaStreaks Wins
-1. **First-mover on streak mechanics** - No competitor has this
-2. **Gamification = Retention** - Users check daily to maintain streaks
-3. **Social features** - Copy trading creates network effects
-4. **Lower barrier** - No complex DeFi knowledge required
-
-## 🏗️ Technical Architecture
-
-### Smart Contracts (Rust + Anchor)
 ```
-programs/solana-streaks/src/
-├── lib.rs                    # Program entry point
-├── state/
-│   ├── market.rs            # Market state management
-│   ├── user_streak.rs       # Streak tracking
-│   └── bet.rs               # Bet records
-└── instructions/
-    ├── initialize_market.rs  # Create prediction markets
-    ├── place_bet.rs         # Place bets with streak multipliers
-    ├── resolve_market.rs    # Oracle-based resolution
-    └── claim_winnings.rs    # Withdraw winnings
-```
-
-### Frontend (Next.js 16 + TypeScript)
-```
-app/
+solana-streaks/
+├── programs/
+│   └── solana-streaks/
+│       ├── src/
+│       │   ├── lib.rs              # Program entry point
+│       │   ├── state/
+│       │   │   ├── market.rs       # Market state
+│       │   │   ├── user_streak.rs  # User streak tracking
+│       │   │   └── bet.rs          # Bet records
+│       │   └── instructions/
+│       │       ├── initialize_market.rs
+│       │       ├── place_bet.rs
+│       │       ├── resolve_market.rs
+│       │       └── claim_winnings.rs
+│       └── Cargo.toml
 ├── app/
-│   ├── markets/            # Browse active markets
-│   ├── dashboard/          # User stats & streaks
-│   ├── leaderboard/        # Top predictors
-│   ├── create/             # Create markets
-│   └── game/               # 3D Arena (Moddio integration)
-├── components/
-│   ├── BetModal.tsx        # Bet placement with insurance
-│   ├── StreakInsurance.tsx # Streak protection
-│   └── SocialBetting.tsx   # Copy trading
-└── hooks/
-    ├── useProgram.ts       # Anchor program integration
-    └── usePyth.ts          # Price oracle integration
+│   ├── app/
+│   │   ├── markets/           # Browse markets
+│   │   ├── dashboard/         # User stats
+│   │   ├── leaderboard/       # Rankings
+│   │   ├── create/            # Create markets
+│   │   ├── game/              # 3D Arena
+│   │   └── components/
+│   ├── lib/
+│   │   └── mockData.ts        # Demo data
+│   └── package.json
+└── README.md
 ```
 
-## 📦 Installation
+## Installation
 
 ### Prerequisites
-- Node.js 18+
-- Rust 1.70+
-- Solana CLI 1.18+
-- Anchor 0.32+
-
-### Clone & Install
 ```bash
-git clone https://github.com/dipak0000812/solana-streaks-2.0.git
-cd solana-streaks-2.0
+# Required
+node >= 18.0.0
+rust >= 1.70.0
+solana-cli >= 1.18.0
+anchor-cli >= 0.32.0
+```
 
-# Install frontend dependencies
+### Setup
+
+1. **Clone Repository**
+```bash
+git clone https://github.com/dipak0000812/SolanaStreaks.git
+cd SolanaStreaks
+```
+
+2. **Install Dependencies**
+```bash
+# Frontend
 cd app
 npm install
 
-# Build smart contracts
+# Smart Contracts
 cd ../
 anchor build
 ```
 
-### Environment Setup
+3. **Environment Configuration**
 ```bash
 # app/.env.local
 NEXT_PUBLIC_PROGRAM_ID=B5Rz9UoWgLrfzYppYpZpBpLzNCTuYV5Fjh3uGJd2UsbQ
@@ -116,116 +104,145 @@ NEXT_PUBLIC_SOLANA_NETWORK=devnet
 NEXT_PUBLIC_SOLANA_RPC_URL=https://api.devnet.solana.com
 ```
 
-## 🎮 Running Locally
+## Development
 
-### Frontend
+### Run Frontend
 ```bash
 cd app
 npm run dev
-# Open http://localhost:3000
+# http://localhost:3000
 ```
 
-### Smart Contracts (Testing)
+### Build Frontend
+```bash
+cd app
+npm run build
+```
+
+### Test Smart Contracts
 ```bash
 anchor test
 ```
 
-## 🔐 Smart Contract Details
-
-### Program ID
+### Deploy Smart Contracts
+```bash
+anchor build
+anchor deploy --provider.cluster devnet
 ```
-B5Rz9UoWgLrfzYppYpZpBpLzNCTuYV5Fjh3uGJd2UsbQ
+
+## Smart Contract Architecture
+
+### State Accounts
+
+**Market**
+```rust
+pub struct Market {
+    pub authority: Pubkey,
+    pub question: String,
+    pub outcomes: Vec<String>,
+    pub resolution_time: i64,
+    pub total_pool: u64,
+    pub resolved: bool,
+    pub winning_outcome: Option<u8>,
+}
+```
+
+**UserProfile**
+```rust
+pub struct UserProfile {
+    pub authority: Pubkey,
+    pub total_bets: u64,
+    pub total_wins: u64,
+    pub current_streak: u32,
+    pub longest_streak: u32,
+}
+```
+
+**Bet**
+```rust
+pub struct Bet {
+    pub market: Pubkey,
+    pub user: Pubkey,
+    pub amount: u64,
+    pub prediction: u8,
+    pub claimed: bool,
+}
 ```
 
 ### Key Instructions
 
-#### 1. Initialize Market
-```rust
-pub fn initialize_market(
-    ctx: Context<InitializeMarket>,
-    question: String,
-    outcomes: Vec<String>,
-    end_time: i64,
-) -> Result<()>
+- `initialize_market`: Create new prediction market
+- `place_bet`: Place bet with streak multiplier
+- `resolve_market`: Resolve market outcome
+- `claim_winnings`: Claim winnings with multiplier
+
+## Deployment
+
+### Live Deployment
+- **Frontend**: https://sol-new.vercel.app/
+- **Program**: [View on Solscan](https://solscan.io/account/B5Rz9UoWgLrfzYppYpZpBpLzNCTuYV5Fjh3uGJd2UsbQ?cluster=devnet)
+
+### Vercel Deployment
+```bash
+cd app
+vercel --prod
 ```
 
-#### 2. Place Bet
-```rust
-pub fn place_bet(
-    ctx: Context<PlaceBet>,
-    outcome_index: u8,
-    amount: u64,
-    use_insurance: bool,
-) -> Result<()>
+## Testing
+
+### Local Testing
+```bash
+# Run dev server
+npm run dev
+
+# Build production
+npm run build
+
+# Test smart contracts
+anchor test
 ```
 
-#### 3. Resolve Market
-```rust
-pub fn resolve_market(
-    ctx: Context<ResolveMarket>,
-    winning_outcome: u8,
-) -> Result<()>
-```
+### Manual Testing Checklist
+- [ ] Wallet connection (Phantom/Solflare)
+- [ ] Market browsing and filtering
+- [ ] Bet placement with multipliers
+- [ ] Streak insurance purchase
+- [ ] Social betting (copy trades)
+- [ ] Mobile responsiveness
 
-## 🎨 Tech Stack
+## Known Issues
 
-### Blockchain
-- **Solana**: High-performance blockchain
-- **Anchor**: Rust framework for Solana programs
-- **Solana Web3.js**: Client-side integration
+- Oracle integration pending (manual resolution currently)
+- Pyth price feeds not yet integrated
+- Tournament prize distribution manual
 
-### Frontend
-- **Next.js 16**: React framework with App Router
-- **TypeScript**: Type-safe development
-- **Tailwind CSS**: Utility-first styling
-- **Framer Motion**: Smooth animations
-- **Wallet Adapter**: Phantom & Solflare support
+## Roadmap
 
-### Infrastructure
-- **Vercel**: Frontend deployment
-- **Solana Devnet**: Smart contract deployment
-- **Pyth Network**: Price oracles (planned)
-
-## 📊 Hackathon Submission
-
-### Innovation
-- **First-ever streak multiplier system** in prediction markets
-- Gamification increases user retention by 3x
-- Social betting creates viral growth loops
-
-### Technical Achievements
-- ✅ Deployed smart contracts to Solana Devnet
-- ✅ Full-stack integration with Anchor
-- ✅ Real-time wallet connection
-- ✅ Production-ready UI/UX
-- ✅ Responsive design (mobile + desktop)
-
-### Future Roadmap
 - [ ] Pyth/Switchboard oracle integration
 - [ ] Mainnet deployment
-- [ ] NFT achievements for streaks
-- [ ] DAO governance for market creation
+- [ ] NFT achievement system
+- [ ] DAO governance
 - [ ] Mobile app (React Native)
 
-## 🤝 Contributing
+## Contributing
 
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open Pull Request
 
-## 📄 License
+## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+MIT License - see LICENSE file for details
 
-## 🔗 Links
+## Contact
 
-- **Website**: https://sol-new.vercel.app/
-- **GitHub**: https://github.com/dipak0000812/solana-streaks-2.0
-- **Solscan**: https://solscan.io/account/B5Rz9UoWgLrfzYppYpZpBpLzNCTuYV5Fjh3uGJd2UsbQ?cluster=devnet
-- **Demo Video**: [Coming Soon]
+- **GitHub**: https://github.com/dipak0000812/SolanaStreaks
+- **Live Demo**: https://sol-new.vercel.app/
 
-## 👥 Team
+## Acknowledgments
 
-Built with ❤️ for the Solana Hackathon
-
----
-
-**⚡ Live on Solana Devnet** | **🔥 Streak to Win** | **🏆 Hackathon 2024**
+- Built for Solana Hackathon 2024
+- Powered by Anchor Framework
+- UI inspired by modern gaming aesthetics

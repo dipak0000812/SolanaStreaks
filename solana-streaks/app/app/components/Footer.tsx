@@ -51,7 +51,7 @@ export default function Footer() {
                         <h4 className="font-orbitron font-bold text-white mb-4">Verify On-Chain</h4>
                         <div className="space-y-3">
                             <a
-                                href="https://github.com/dipak0000812/solana-streaks-2.0"
+                                href="https://github.com/dipak0000812/SolanaStreaks"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-2 text-gray-400 hover:text-neon-purple transition-colors text-sm group"

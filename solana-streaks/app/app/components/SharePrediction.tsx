@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from 'react';
 import { motion } from "framer-motion";
-import { Share2 } from "lucide-react";
+import { Share2, Check } from "lucide-react";
 
 interface SharePredictionProps {
     market?: {
@@ -23,6 +24,7 @@ export default function SharePrediction({
     multiplier = 2.0,
     type = 'bet'
 }: SharePredictionProps) {
+    const [copied, setCopied] = useState(false);
 
     const getShareText = () => {
         if (type === 'win' && market && prediction) {
@@ -42,23 +44,57 @@ export default function SharePrediction({
     };
 
     const shareToTwitter = () => {
-        const text = getShareText();
-        const url = 'https://solana-streaks.vercel.app';
-        const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
-        window.open(twitterUrl, '_blank', 'width=550,height=420');
+        if (typeof window === 'undefined') return;
+
+        try {
+            const text = getShareText();
+            const url = window.location.origin;
+            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+            window.open(twitterUrl, '_blank', 'width=550,height=420');
+        } catch (error) {
+            console.error('Twitter share failed:', error);
+            alert('Failed to open Twitter. Please try again.');
+        }
     };
 
     const shareToTelegram = () => {
-        const text = getShareText();
-        const url = 'https://solana-streaks.vercel.app';
-        const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
-        window.open(telegramUrl, '_blank');
+        if (typeof window === 'undefined') return;
+
+        try {
+            const text = getShareText();
+            const url = window.location.origin;
+            const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
+            window.open(telegramUrl, '_blank');
+        } catch (error) {
+            console.error('Telegram share failed:', error);
+            alert('Failed to open Telegram. Please try again.');
+        }
     };
 
-    const copyLink = () => {
-        const text = getShareText() + '\n\nhttps://solana-streaks.vercel.app';
-        navigator.clipboard.writeText(text);
-        // You could add a toast notification here
+    const copyLink = async () => {
+        if (typeof window === 'undefined') return;
+
+        try {
+            const text = getShareText() + '\n\n' + window.location.origin;
+            await navigator.clipboard.writeText(text);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch (error) {
+            console.error('Copy failed:', error);
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = getShareText() + '\n\n' + window.location.origin;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+            } catch (err) {
+                alert('Failed to copy. Please try manually.');
+            }
+            document.body.removeChild(textArea);
+        }
     };
 
     return (
@@ -96,8 +132,17 @@ export default function SharePrediction({
                 onClick={copyLink}
                 className="flex items-center gap-2 px-4 py-2 glass-panel border border-white/20 hover:border-neon-green/50 rounded-lg transition-all"
             >
-                <Share2 className="w-5 h-5 text-neon-green" />
-                <span className="font-semibold text-white">Copy Link</span>
+                {copied ? (
+                    <>
+                        <Check className="w-5 h-5 text-neon-green" />
+                        <span className="font-semibold text-neon-green">Copied!</span>
+                    </>
+                ) : (
+                    <>
+                        <Share2 className="w-5 h-5 text-neon-green" />
+                        <span className="font-semibold text-white">Copy Link</span>
+                    </>
+                )}
             </motion.button>
         </div>
     );

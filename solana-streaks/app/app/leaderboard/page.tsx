@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { Trophy, TrendingUp, Flame, Award, Crown } from "lucide-react";
 
@@ -34,7 +35,7 @@ export default function LeaderboardPage() {
             Hall of Fame
           </span>
         </motion.div>
-        
+
         <h1 className="font-orbitron font-black text-5xl md:text-7xl text-white mb-4">
           Leaderboard
         </h1>
@@ -47,14 +48,14 @@ export default function LeaderboardPage() {
       <div className="relative max-w-5xl mx-auto">
         {/* Glow Effect */}
         <div className="absolute inset-0 bg-gradient-to-r from-neon-gold/20 via-neon-green/20 to-neon-purple/20 blur-3xl -z-10" />
-        
+
         <div className="grid grid-cols-3 gap-4 items-end">
           {/* 2nd Place */}
           <PodiumCard player={topThree[1]} position={2} />
-          
+
           {/* 1st Place */}
           <PodiumCard player={topThree[0]} position={1} />
-          
+
           {/* 3rd Place */}
           <PodiumCard player={topThree[2]} position={3} />
         </div>
@@ -97,25 +98,25 @@ export default function LeaderboardPage() {
                   #{player.rank}
                 </span>
               </div>
-              
+
               <div className="flex items-center gap-3">
                 <span className="text-2xl">{player.avatar}</span>
                 <span className="font-mono text-white">{player.address}</span>
               </div>
-              
+
               <div className="flex items-center justify-end gap-2">
                 <Flame className="w-4 h-4 text-neon-orange" />
                 <span className="font-orbitron font-bold text-lg text-white">
                   {player.streak}
                 </span>
               </div>
-              
+
               <div className="flex items-center justify-end">
                 <span className="font-orbitron font-bold text-lg neon-text-green">
                   {player.winnings} SOL
                 </span>
               </div>
-              
+
               <div className="flex items-center justify-end">
                 <span className="font-orbitron font-bold text-lg text-white">
                   {player.winRate}%
@@ -139,13 +140,15 @@ export default function LeaderboardPage() {
         <p className="text-gray-400 mb-6">
           Build your streak to climb the leaderboard and earn legendary status.
         </p>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="px-8 py-4 rounded-xl bg-success-gradient font-orbitron font-bold text-lg text-black shadow-lg shadow-neon-green/50"
-        >
-          START TRADING
-        </motion.button>
+        <Link href="/markets">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="px-8 py-4 rounded-xl bg-success-gradient font-orbitron font-bold text-lg text-black shadow-lg shadow-neon-green/50"
+          >
+            START TRADING
+          </motion.button>
+        </Link>
       </motion.div>
     </div>
   );
@@ -179,7 +182,7 @@ function PodiumCard({ player, position }: { player: typeof LEADERBOARD_DATA[0]; 
       className={`relative ${heights[position as keyof typeof heights]}`}
     >
       <div className={`absolute inset-0 bg-gradient-to-br ${colors[position as keyof typeof colors]} opacity-20 blur-2xl -z-10`} />
-      
+
       <div className={`h-full glass-panel rounded-2xl border-2 ${position === 1 ? 'border-neon-gold' : 'border-white/20'} p-6 flex flex-col items-center justify-between ${glows[position as keyof typeof glows]}`}>
         {/* Crown/Medal */}
         <motion.div

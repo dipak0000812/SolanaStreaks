@@ -1,6 +1,4 @@
 [toolchain]
-
-[toolchain]
 anchor_version = "0.32.1"
 
 [features]

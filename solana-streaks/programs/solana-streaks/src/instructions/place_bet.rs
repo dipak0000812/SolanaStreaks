@@ -7,28 +7,29 @@ use crate::errors::ErrorCode;
 #[instruction(prediction: u8, amount: u64)]
 pub struct PlaceBet<'info> {
     #[account(mut)]
-    pub market: Account<'info, Market>,
-    
+    pub user: Signer<'info>,
+
     #[account(
         init_if_needed,
         payer = user,
-        space = UserProfile::SIZE,
+        space = 8 + UserProfile::SIZE,
         seeds = [b"user", user.key().as_ref()],
         bump
     )]
     pub user_profile: Account<'info, UserProfile>,
-    
+
     #[account(
         init,
         payer = user,
-        space = Bet::SIZE,
+        space = 8 + Bet::SIZE,
         seeds = [b"bet", market.key().as_ref(), user.key().as_ref()],
         bump
     )]
     pub bet: Account<'info, Bet>,
-    
+
     #[account(mut)]
-    pub user: Signer<'info>,
+    pub market: Account<'info, Market>,
+
     pub system_program: Program<'info, System>,
 }
 
@@ -41,10 +42,7 @@ pub fn handler(ctx: Context<PlaceBet>, prediction: u8, amount: u64) -> Result<()
     require!((prediction as usize) < market.outcomes.len(), ErrorCode::InvalidOutcome);
     require!(amount > 0, ErrorCode::InsufficientFunds);
     
-    // Transfer SOL to Market PDA (or we could use a vault)
-    // For simplicity, we send to the Market account itself, but typically we'd use a vault.
-    // The market account is data account, so we should separate the vault.
-    // To keep it simple for Hackathon: Move to market account (it is owned by program).
+    // Transfer SOL to Market PDA
     system_program::transfer(
         CpiContext::new(
             ctx.accounts.system_program.to_account_info(),

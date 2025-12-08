@@ -4,6 +4,7 @@ import "./globals.css";
 import AppWalletProvider from "./components/providers/AppWalletProvider";
 import Navbar from "./components/Navbar";
 import RecentlyJoinedBanner from "./components/RecentlyJoinedBanner";
+import Footer from "./components/Footer";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
@@ -34,9 +35,11 @@ export default function RootLayout({
             <main className="flex-1 relative z-10 container mx-auto px-4 py-8">
               {children}
             </main>
+            <Footer />
           </div>
         </AppWalletProvider>
       </body>
     </html>
   );
 }
+

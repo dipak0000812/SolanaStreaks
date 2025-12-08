@@ -68,16 +68,16 @@ export default function BetModal({ isOpen, onClose, market }: BetModalProps) {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50"
+                        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999]"
                     />
 
                     {/* Modal */}
-                    <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+                    <div className="fixed inset-0 flex items-center justify-center z-[9999] p-4 pointer-events-none">
                         <motion.div
                             initial={{ opacity: 0, scale: 0.9, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                            className="glass-panel rounded-2xl border border-white/20 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+                            className="glass-panel rounded-2xl border border-white/20 max-w-2xl w-full max-h-[90vh] overflow-y-auto pointer-events-auto"
                             onClick={(e) => e.stopPropagation()}
                         >
                             {/* Header */}
@@ -126,8 +126,8 @@ export default function BetModal({ isOpen, onClose, market }: BetModalProps) {
                                                 key={outcome.name}
                                                 onClick={() => setSelectedOutcome(outcome.name)}
                                                 className={`p-4 rounded-xl border-2 transition-all ${selectedOutcome === outcome.name
-                                                        ? 'border-neon-green bg-neon-green/10'
-                                                        : 'border-white/20 hover:border-white/40'
+                                                    ? 'border-neon-green bg-neon-green/10'
+                                                    : 'border-white/20 hover:border-white/40'
                                                     }`}
                                             >
                                                 {outcome.name === 'Yes' ? (

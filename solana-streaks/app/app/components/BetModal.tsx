@@ -77,7 +77,7 @@ export default function BetModal({ isOpen, onClose, market }: BetModalProps) {
                             initial={{ opacity: 0, scale: 0.9, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                            className="glass-panel rounded-2xl border border-white/20 max-w-2xl w-full max-h-[90vh] overflow-y-auto pointer-events-auto"
+                            className="glass-panel rounded-2xl border border-white/20 w-full max-w-2xl max-h-[90vh] md:max-h-[85vh] overflow-y-auto pointer-events-auto"
                             onClick={(e) => e.stopPropagation()}
                         >
                             {/* Header */}

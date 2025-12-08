@@ -48,12 +48,27 @@ export default function SharePrediction({
 
         try {
             const text = getShareText();
-            const url = window.location.origin;
-            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
-            window.open(twitterUrl, '_blank', 'width=550,height=420');
+            const url = typeof window !== 'undefined' ? window.location.href : 'https://sol-new.vercel.app';
+
+            // Use X.com (Twitter's new domain) for better compatibility
+            const twitterUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+
+            // Open in new window
+            const newWindow = window.open(twitterUrl, '_blank', 'width=550,height=420,noopener,noreferrer');
+
+            if (!newWindow) {
+                // Fallback if popup blocked
+                window.location.href = twitterUrl;
+            }
         } catch (error) {
             console.error('Twitter share failed:', error);
-            alert('Failed to open Twitter. Please try again.');
+            // Fallback: copy text to clipboard
+            const text = getShareText() + '\n\n' + window.location.href;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Link copied to clipboard! Share it on Twitter manually.');
+            }).catch(() => {
+                alert('Please allow popups to share on Twitter, or copy the link manually.');
+            });
         }
     };
 

@@ -9,6 +9,9 @@ import { useEffect, useState } from "react";
 import { TOP_PREDICTORS, LIVE_ACTIVITY, TESTIMONIALS, ROADMAP_PHASES } from "../lib/mockData";
 import DemoMode from "./components/DemoMode";
 import LiveTournament from "./components/LiveTournament";
+import TestimonialsSection from "./components/TestimonialsSection";
+import VideoSection from "./components/VideoSection";
+import AnimatedCounter from "./components/AnimatedCounter";
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
@@ -500,6 +503,12 @@ export default function Home() {
       {/* LIVE TOURNAMENT SECTION */}
       <LiveTournament />
 
+      {/* TESTIMONIALS SECTION */}
+      <TestimonialsSection />
+
+      {/* VIDEO SECTION */}
+      <VideoSection />
+
       {/* FINAL CTA */}
       <section className="relative py-32">
         <div className="container mx-auto px-4">
@@ -539,18 +548,40 @@ export default function Home() {
   );
 }
 
-// Stat Card Component
+// Stat Card Component with AnimatedCounter
 function StatCard({ value, label, suffix = "", icon }: { value: string; label: string; suffix?: string; icon: React.ReactNode }) {
+  // Parse value to number for animation
+  const numericValue = parseFloat(value.replace(/[^0-9.]/g, ''));
+  const hasM = value.includes('M');
+  const hasK = value.includes('K');
+  const hasX = value.includes('x');
+
   return (
     <motion.div
       whileHover={{ y: -4 }}
       className="text-center space-y-2"
     >
+      {/* LIVE Indicator */}
+      <div className="flex items-center justify-center gap-2 mb-2">
+        <span className="relative flex h-2 w-2">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-neon-green opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-neon-green"></span>
+        </span>
+        <span className="text-xs font-orbitron font-semibold text-neon-green uppercase tracking-wider">
+          LIVE
+        </span>
+      </div>
+
       <div className="flex items-center justify-center gap-2 text-neon-green mb-1">
         {icon}
       </div>
       <div className="font-orbitron font-bold text-4xl md:text-5xl neon-text-green">
-        {value}<span className="text-2xl">{suffix}</span>
+        <AnimatedCounter
+          to={numericValue}
+          decimals={hasM ? 1 : 0}
+          suffix={hasM ? 'M' : hasK ? 'K' : hasX ? 'x' : ''}
+        />
+        <span className="text-2xl">{suffix}</span>
       </div>
       <div className="text-sm text-gray-400 uppercase tracking-wider">{label}</div>
     </motion.div>

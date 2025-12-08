@@ -2,53 +2,137 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
-import { Button } from "./ui/button";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { Trophy, TrendingUp, LayoutDashboard, Rocket } from "lucide-react";
+import { motion } from "framer-motion";
+import { Home, TrendingUp, Flame, Trophy, PlusCircle, Gamepad2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+const navItems = [
+  { name: "Home", href: "/", icon: Home },
+  { name: "Markets", href: "/markets", icon: TrendingUp },
+  { name: "Dashboard", href: "/dashboard", icon: Flame },
+  { name: "Leaderboard", href: "/leaderboard", icon: Trophy },
+  { name: "Create", href: "/create", icon: PlusCircle },
+  { name: "Arena", href: "/game", icon: Gamepad2 },
+];
 
 export default function Navbar() {
-    const pathname = usePathname();
+  const pathname = usePathname();
 
-    const navItems = [
-        { name: "Markets", href: "/markets", icon: TrendingUp },
-        { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-        { name: "Leaderboard", href: "/leaderboard", icon: Trophy },
-        { name: "Create", href: "/create", icon: Rocket },
-    ];
-
-    return (
-        <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/60 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
-            <div className="container flex h-16 items-center justify-between">
-                <Link href="/" className="flex items-center space-x-2">
-                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                        <Trophy className="h-4 w-4 text-white" />
-                    </div>
-                    <span className="font-bold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-                        Solana<span className="text-primary">Streaks</span>
-                    </span>
-                </Link>
-
-                <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-                    {navItems.map((item) => (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            className={cn(
-                                "transition-colors hover:text-primary flex items-center space-x-1",
-                                pathname === item.href ? "text-foreground" : "text-foreground/60"
-                            )}
-                        >
-                            <item.icon className="h-4 w-4" />
-                            <span>{item.name}</span>
-                        </Link>
-                    ))}
-                </nav>
-
-                <div className="flex items-center space-x-4">
-                    <WalletMultiButton className="!bg-primary/20 !text-primary !border !border-primary/50 !rounded-md !h-10 !px-4 !text-sm !font-medium hover:!bg-primary/30 transition-all" />
+  return (
+    <>
+      {/* Desktop Navbar */}
+      <motion.nav
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        className="sticky top-0 z-50 hidden md:block"
+      >
+        <div className="glass-panel border-b border-white/10 backdrop-blur-xl">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between h-20">
+              {/* Logo */}
+              <Link href="/" className="flex items-center gap-3 group">
+                <motion.div
+                  whileHover={{ rotate: 360 }}
+                  transition={{ duration: 0.6 }}
+                  className="text-4xl"
+                >
+                  🔥
+                </motion.div>
+                <div>
+                  <h1 className="font-orbitron font-black text-2xl bg-gradient-to-r from-neon-green to-neon-cyan bg-clip-text text-transparent">
+                    SOLANA
+                  </h1>
+                  <p className="text-xs text-gray-400 font-orbitron font-semibold">STREAKS</p>
                 </div>
+              </Link>
+
+              {/* Nav Links */}
+              <div className="flex items-center gap-2">
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = pathname === item.href;
+                  
+                  return (
+                    <Link key={item.href} href={item.href}>
+                      <motion.div
+                        whileHover={{ y: -2 }}
+                        whileTap={{ scale: 0.95 }}
+                        className={cn(
+                          "relative px-4 py-2 rounded-xl transition-all flex items-center gap-2",
+                          isActive
+                            ? "bg-success-gradient text-black shadow-neon-green"
+                            : "text-gray-400 hover:text-white hover:bg-white/5"
+                        )}
+                      >
+                        <Icon className="w-4 h-4" />
+                        <span className="font-orbitron font-semibold text-sm">
+                          {item.name}
+                        </span>
+                        
+                        {isActive && (
+                          <motion.div
+                            layoutId="activeTab"
+                            className="absolute inset-0 bg-success-gradient rounded-xl -z-10"
+                            transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                          />
+                        )}
+                      </motion.div>
+                    </Link>
+                  );
+                })}
+              </div>
+
+              {/* Wallet Button */}
+              <div className="wallet-adapter-button-trigger">
+                <WalletMultiButton className="!bg-gradient-to-r !from-neon-purple !to-neon-pink !rounded-xl !font-orbitron !font-bold !px-6 !py-3 hover:!shadow-lg hover:!shadow-neon-purple/50 !transition-all" />
+              </div>
             </div>
-        </header>
-    );
+          </div>
+        </div>
+      </motion.nav>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass-panel border-t border-white/10 backdrop-blur-xl pb-safe">
+        <div className="grid grid-cols-6 gap-1 p-2">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.href;
+            
+            return (
+              <Link key={item.href} href={item.href}>
+                <motion.div
+                  whileTap={{ scale: 0.9 }}
+                  className={cn(
+                    "flex flex-col items-center justify-center py-3 px-2 rounded-xl transition-all",
+                    isActive
+                      ? "bg-success-gradient text-black"
+                      : "text-gray-400"
+                  )}
+                >
+                  <Icon className="w-5 h-5 mb-1" />
+                  <span className="text-xs font-orbitron font-semibold">
+                    {item.name}
+                  </span>
+                </motion.div>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+
+      {/* Mobile Top Bar (Wallet) */}
+      <div className="md:hidden sticky top-0 z-50 glass-panel border-b border-white/10 backdrop-blur-xl">
+        <div className="flex items-center justify-between p-4">
+          <Link href="/" className="flex items-center gap-2">
+            <span className="text-2xl">🔥</span>
+            <span className="font-orbitron font-black text-lg bg-gradient-to-r from-neon-green to-neon-cyan bg-clip-text text-transparent">
+              SOLANA STREAKS
+            </span>
+          </Link>
+          <WalletMultiButton className="!bg-gradient-to-r !from-neon-purple !to-neon-pink !rounded-xl !font-orbitron !font-bold !text-sm !px-4 !py-2" />
+        </div>
+      </div>
+    </>
+  );
 }

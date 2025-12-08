@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Button } from "./ui/button";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import { playSolana } from "../../lib/playSolana";
 
 export default function BetModal({ marketQuestion, outcomes, onPlaceBet }: { marketQuestion: string, outcomes: string[], onPlaceBet: (outcome: number, amount: number) => Promise<void> }) {
     const [amount, setAmount] = useState(0.1);
@@ -15,6 +16,10 @@ export default function BetModal({ marketQuestion, outcomes, onPlaceBet }: { mar
         if (selectedOutcome === null) return;
         setIsLoading(true);
         await onPlaceBet(selectedOutcome, amount);
+
+        // Play Solana Integration
+        await playSolana.triggerEvent("place_bet");
+
         setIsLoading(false);
         setOpen(false);
     };

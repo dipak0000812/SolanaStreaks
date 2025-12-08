@@ -14,6 +14,7 @@ const PROGRAM_ID = new PublicKey(
 const IDL = {
     version: "0.1.0",
     name: "solana_streaks",
+    address: "B5Rz9UoWgLrfzYppYpZpBpLzNCTuYV5Fjh3uGJd2UsbQ",
     instructions: [
         {
             name: "initializeMarket",
@@ -56,7 +57,7 @@ export function useProgram() {
         if (!provider) return null;
 
         try {
-            return new Program(IDL as any, PROGRAM_ID, provider);
+            return new Program(IDL as any, provider);
         } catch (error) {
             console.error('Failed to initialize program:', error);
             return null;

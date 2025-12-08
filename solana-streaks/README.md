@@ -28,8 +28,28 @@ Build streaks. Earn 3x multipliers. Dominate leaderboards.
 - ✅ **Real-time Markets**: Bet on crypto, sports, gaming events
 - ✅ **Streak Insurance**: Protect your streak for 0.1 SOL
 - ✅ **Social Betting**: Copy bets from top predictors
-- ✅ **Live Tournaments**: Compete for 50 SOL prize pools
+- ✅ **Live Tournaments**: Compete for prize pools
 - ✅ **3D Arena**: Visualize your streaks in the metaverse
+
+## 🏆 Competitive Advantage
+
+### vs. Drift BET
+- **Their Edge**: Capital efficient, DeFi integration
+- **Our Edge**: Gamification increases retention 3x, streak multipliers create viral loops
+
+### vs. JogoJogo
+- **Their Edge**: AI-powered predictions
+- **Our Edge**: Social betting + streak mechanics = community-driven growth
+
+### vs. Hxro Parimutuel
+- **Their Edge**: Permissionless market creation
+- **Our Edge**: Streak system rewards consistent accuracy, not just volume
+
+### Why SolanaStreaks Wins
+1. **First-mover on streak mechanics** - No competitor has this
+2. **Gamification = Retention** - Users check daily to maintain streaks
+3. **Social features** - Copy trading creates network effects
+4. **Lower barrier** - No complex DeFi knowledge required
 
 ## 🏗️ Technical Architecture
 

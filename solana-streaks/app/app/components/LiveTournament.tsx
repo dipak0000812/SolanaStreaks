@@ -41,7 +41,7 @@ export default function LiveTournament() {
                         transition={{ repeat: Infinity, duration: 3 }}
                         className="text-3xl font-orbitron font-bold text-neon-gold"
                     >
-                        50 SOL Prize Pool
+                        5 SOL Prize Pool (Demo)
                     </motion.p>
                 </div>
 
@@ -79,9 +79,9 @@ export default function LiveTournament() {
                             >
                                 <div className="flex items-center gap-4">
                                     <div className={`w-12 h-12 rounded-full flex items-center justify-center font-orbitron font-bold text-xl ${user.rank === 1 ? 'bg-gradient-to-br from-neon-gold to-neon-orange text-black shadow-lg shadow-neon-gold/50' :
-                                            user.rank === 2 ? 'bg-gradient-to-br from-gray-300 to-gray-400 text-black shadow-lg shadow-gray-300/50' :
-                                                user.rank === 3 ? 'bg-gradient-to-br from-orange-400 to-orange-600 text-black shadow-lg shadow-orange-400/50' :
-                                                    'bg-white/10 text-white'
+                                        user.rank === 2 ? 'bg-gradient-to-br from-gray-300 to-gray-400 text-black shadow-lg shadow-gray-300/50' :
+                                            user.rank === 3 ? 'bg-gradient-to-br from-orange-400 to-orange-600 text-black shadow-lg shadow-orange-400/50' :
+                                                'bg-white/10 text-white'
                                         }`}>
                                         {user.rank}
                                     </div>

@@ -16,11 +16,11 @@ export default function RecentlyJoinedBanner() {
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-neon-green"></span>
                     </span>
                     <span className="text-gray-300">
-                        <span className="font-bold text-neon-green">147 users</span> joined in the last 24 hours
+                        <span className="font-bold text-neon-green">Beta Testing Live</span> • 15 Active Markets
                     </span>
                     <span className="text-gray-600 hidden sm:inline">•</span>
                     <span className="text-gray-300">
-                        <span className="font-bold text-neon-pink">23 active streaks</span> right now
+                        <span className="font-bold text-neon-pink">Hackathon Demo</span> • Try it now!
                     </span>
                 </div>
             </div>

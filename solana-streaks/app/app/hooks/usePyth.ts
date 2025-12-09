@@ -1,47 +1,51 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo } from 'react';
+import { useConnection } from '@solana/wallet-adapter-react';
 
-// Mock Pyth Price Feed
-interface PriceFeed {
-    id: string;
-    symbol: string;
-    price: number;
-    conf: number;
-    lastUpdated: number;
-}
+// Simplified Pyth integration - uses mock data for demo
+// In production, integrate with @pythnetwork/client
 
-const MOCK_FEEDS: Record<string, PriceFeed> = {
-    "SOL/USD": { id: "sol", symbol: "SOL/USD", price: 142.50, conf: 0.1, lastUpdated: Date.now() },
-    "BTC/USD": { id: "btc", symbol: "BTC/USD", price: 98500.00, conf: 10.0, lastUpdated: Date.now() },
-    "ETH/USD": { id: "eth", symbol: "ETH/USD", price: 3450.25, conf: 2.0, lastUpdated: Date.now() }
-};
+export function usePyth() {
+    const { connection } = useConnection();
 
-export function usePythPrice(symbol: string) {
-    const [price, setPrice] = useState<PriceFeed | null>(null);
-    const [loading, setLoading] = useState(true);
+    const getPrice = async (symbol: 'SOL/USD' | 'BTC/USD' | 'ETH/USD') => {
+        try {
+            // Mock prices for demo
+            const mockPrices = {
+                'SOL/USD': 145.32,
+                'BTC/USD': 98234.56,
+                'ETH/USD': 4123.45,
+            };
 
-    useEffect(() => {
-        // Simulate live subscription
-        const fetchPrice = () => {
-            const feed = MOCK_FEEDS[symbol];
-            if (feed) {
-                // Add some jitter to simulate live updates
-                const jitter = (Math.random() - 0.5) * (feed.price * 0.001);
-                setPrice({
-                    ...feed,
-                    price: feed.price + jitter,
-                    lastUpdated: Date.now()
-                });
-            }
-            setLoading(false);
-        };
+            return {
+                price: mockPrices[symbol],
+                confidence: 0.5,
+                timestamp: Date.now(),
+            };
+        } catch (error) {
+            console.error('Failed to fetch price:', error);
+            return null;
+        }
+    };
 
-        fetchPrice();
-        const interval = setInterval(fetchPrice, 2000);
+    const checkPriceCondition = async (
+        symbol: 'SOL/USD' | 'BTC/USD' | 'ETH/USD',
+        targetPrice: number,
+        condition: 'above' | 'below'
+    ): Promise<boolean | null> => {
+        const priceData = await getPrice(symbol);
+        if (!priceData) return null;
 
-        return () => clearInterval(interval);
-    }, [symbol]);
+        if (condition === 'above') {
+            return priceData.price >= targetPrice;
+        } else {
+            return priceData.price <= targetPrice;
+        }
+    };
 
-    return { price, loading };
+    return {
+        getPrice,
+        checkPriceCondition,
+    };
 }

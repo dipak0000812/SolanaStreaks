@@ -12,6 +12,8 @@ import LiveTournament from "./components/LiveTournament";
 import TestimonialsSection from "./components/TestimonialsSection";
 import VideoSection from "./components/VideoSection";
 import AnimatedCounter from "./components/AnimatedCounter";
+import TVLStats from "./components/TVLStats";
+import LiveActivityFeed from "./components/LiveActivityFeed";
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);

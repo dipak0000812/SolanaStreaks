@@ -47,21 +47,21 @@ export default function Home() {
         </div>
 
         {/* Content */}
-        <div className="relative z-10 container mx-auto px-4 py-20">
-          <div className="max-w-5xl mx-auto text-center space-y-8">
+        <div className="relative z-10 container mx-auto px-4 py-12 md:py-20">
+          <div className="max-w-5xl mx-auto text-center space-y-6 md:space-y-8">
 
             {/* Live Badge */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-3 px-6 py-3 rounded-full glass-panel border-2 border-neon-green/30"
+              className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-3 rounded-full glass-panel border-2 border-neon-green/30"
             >
-              <span className="relative flex h-3 w-3">
+              <span className="relative flex h-2 w-2 md:h-3 md:w-3">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-neon-green opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-neon-green shadow-neon-green"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 md:h-3 md:w-3 bg-neon-green shadow-neon-green"></span>
               </span>
-              <span className="text-sm font-orbitron font-semibold text-neon-green uppercase tracking-wider">
+              <span className="text-xs md:text-sm font-orbitron font-semibold text-neon-green uppercase tracking-wider">
                 Live on Solana Devnet
               </span>
             </motion.div>
@@ -71,9 +71,9 @@ export default function Home() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.8 }}
-              className="space-y-4"
+              className="space-y-3 md:space-y-4"
             >
-              <h1 className="font-orbitron font-black text-6xl md:text-8xl lg:text-9xl leading-none">
+              <h1 className="font-orbitron font-black text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl leading-none">
                 <span className="inline-block bg-gradient-to-r from-white via-neon-green to-white bg-clip-text text-transparent animate-shimmer bg-[length:200%_100%]">
                   SOLANA
                 </span>
@@ -82,7 +82,7 @@ export default function Home() {
               </h1>
 
               {/* Subheadline */}
-              <p className="text-xl md:text-2xl lg:text-3xl text-gray-300 max-w-3xl mx-auto font-inter font-light leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-gray-300 max-w-3xl mx-auto font-inter font-light leading-relaxed px-4">
                 The first prediction market where{" "}
                 <span className="neon-text-green font-semibold">consecutive wins multiply your rewards</span>.
                 <br className="hidden md:block" />
@@ -95,23 +95,23 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.6 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center pt-4"
+              className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center pt-2 md:pt-4 px-4"
             >
               {/* Primary CTA */}
               <Link href="/markets">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="group relative px-10 py-5 rounded-2xl overflow-hidden bg-success-gradient shadow-2xl shadow-neon-green/50 hover:shadow-neon-green transition-shadow"
+                  className="group relative w-full sm:w-auto px-6 md:px-10 py-3 md:py-5 rounded-xl md:rounded-2xl overflow-hidden bg-success-gradient shadow-2xl shadow-neon-green/50 hover:shadow-neon-green transition-shadow"
                 >
                   {/* Shine Effect */}
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
                   </div>
 
-                  <span className="relative z-10 font-orbitron font-bold text-xl text-black flex items-center gap-3">
+                  <span className="relative z-10 font-orbitron font-bold text-base md:text-xl text-black flex items-center justify-center gap-2 md:gap-3">
                     START EARNING
-                    <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="w-4 h-4 md:w-6 md:h-6 group-hover:translate-x-1 transition-transform" />
                   </span>
                 </motion.button>
               </Link>
@@ -121,11 +121,11 @@ export default function Home() {
                 onClick={() => setShowDemo(true)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-10 py-5 rounded-2xl border-2 border-neon-purple/30 hover:border-neon-purple/70 glass-panel hover:bg-neon-purple/10 transition-all group"
+                className="w-full sm:w-auto px-6 md:px-10 py-3 md:py-5 rounded-xl md:rounded-2xl border-2 border-neon-purple/30 hover:border-neon-purple/70 glass-panel hover:bg-neon-purple/10 transition-all group"
               >
-                <span className="font-orbitron font-semibold text-xl text-white flex items-center gap-2">
+                <span className="font-orbitron font-semibold text-base md:text-xl text-white flex items-center justify-center gap-2">
                   TRY DEMO
-                  <span className="text-xs bg-neon-purple/20 px-3 py-1 rounded-full border border-neon-purple/30 group-hover:bg-neon-purple/30 transition-colors">
+                  <span className="text-[10px] md:text-xs bg-neon-purple/20 px-2 md:px-3 py-0.5 md:py-1 rounded-full border border-neon-purple/30 group-hover:bg-neon-purple/30 transition-colors">
                     No wallet needed
                   </span>
                 </span>

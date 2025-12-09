@@ -85,9 +85,12 @@ export default function Navbar() {
                 })}
               </div>
 
-              {/* Wallet Button */}
-              <div className="wallet-adapter-button-trigger">
-                <WalletMultiButton className="!bg-gradient-to-r !from-neon-purple !to-neon-pink !rounded-xl !font-orbitron !font-bold !px-6 !py-3 hover:!shadow-lg hover:!shadow-neon-purple/50 !transition-all" />
+              {/* Wallet Button + Airdrop */}
+              <div className="flex items-center gap-3">
+                <DevnetAirdrop />
+                <div className="wallet-adapter-button-trigger">
+                  <WalletMultiButton className="!bg-gradient-to-r !from-neon-purple !to-neon-pink !rounded-xl !font-orbitron !font-bold !px-6 !py-3 hover:!shadow-lg hover:!shadow-neon-purple/50 !transition-all" />
+                </div>
               </div>
             </div>
           </div>

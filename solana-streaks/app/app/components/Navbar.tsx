@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { motion } from "framer-motion";
-import { Home, TrendingUp, Flame, Trophy, PlusCircle, Gamepad2 } from "lucide-react";
+import { Home, TrendingUp, Flame, Trophy, PlusCircle, Gamepad2, DollarSign } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -13,6 +13,7 @@ const navItems = [
   { name: "Dashboard", href: "/dashboard", icon: Flame },
   { name: "Leaderboard", href: "/leaderboard", icon: Trophy },
   { name: "Create", href: "/create", icon: PlusCircle },
+  { name: "Economics", href: "/economics", icon: DollarSign },
   { name: "Arena", href: "/game", icon: Gamepad2 },
 ];
 
@@ -52,7 +53,7 @@ export default function Navbar() {
                 {navItems.map((item) => {
                   const Icon = item.icon;
                   const isActive = pathname === item.href;
-                  
+
                   return (
                     <Link key={item.href} href={item.href}>
                       <motion.div
@@ -69,7 +70,7 @@ export default function Navbar() {
                         <span className="font-orbitron font-semibold text-sm">
                           {item.name}
                         </span>
-                        
+
                         {isActive && (
                           <motion.div
                             layoutId="activeTab"
@@ -98,7 +99,7 @@ export default function Navbar() {
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
-            
+
             return (
               <Link key={item.href} href={item.href}>
                 <motion.div

@@ -2,90 +2,99 @@
 
 import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { motion } from 'framer-motion';
+import { Flame, TrendingUp, Shield, Trophy, ExternalLink, Loader2, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { useBlockchain } from '../hooks/useBlockchain';
-import { motion } from 'framer-motion';
-import { Flame, TrendingUp, Shield, Trophy, ExternalLink } from 'lucide-react';
+import { useUserProfile } from '../hooks/useUserProfile';
+import ClaimWinnings from '../components/ClaimWinnings';
 
 export default function DashboardPage() {
   const { publicKey } = useWallet();
-  const { sendTransaction, getBalance, loading } = useBlockchain();
+  const { getBalance, requestAirdrop } = useBlockchain();
+  const { profile, loading: profileLoading, refetch: refetchProfile, level, multiplier } = useUserProfile();
+
   const [balance, setBalance] = useState(0);
-  const [hasInsurance, setHasInsurance] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     if (publicKey) {
-      getBalance().then(setBalance);
+      loadData();
     }
-  }, [publicKey, getBalance]);
+  }, [publicKey]);
 
-  const handlePurchaseInsurance = async () => {
-    if (!publicKey) {
-      toast.error('Please connect your wallet first!');
-      return;
-    }
+  const loadData = async () => {
+    if (!publicKey) return;
+    const bal = await getBalance();
+    setBalance(bal);
+  };
 
-    if (balance < 0.1) {
-      toast.error('Insufficient balance', {
-        description: 'You need at least 0.1 SOL',
-      });
-      return;
-    }
-
-    const transaction = new Transaction().add(
-      SystemProgram.transfer({
-        fromPubkey: publicKey,
-        toPubkey: new PublicKey('B5Rz9UoWgLrfzYppYpZpBpLzNCTuYV5Fjh3uGJd2UsbQ'),
-        lamports: 0.1 * LAMPORTS_PER_SOL,
-      })
-    );
-
-    const signature = await sendTransaction(
-      transaction,
-      'Purchasing streak insurance'
-    );
-
-    if (signature) {
-      setHasInsurance(true);
-      const newBalance = await getBalance();
-      setBalance(newBalance);
-
-      toast.success('Insurance activated!', {
-        description: 'Your streak is now protected for 24 hours',
-      });
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([loadData(), refetchProfile()]);
+      toast.success('Data refreshed from blockchain');
+    } catch (error) {
+      toast.error('Failed to refresh data');
+    } finally {
+      setRefreshing(false);
     }
   };
 
-  // Mock data (will be fetched from blockchain)
   const stats = {
-    currentStreak: 7,
-    longestStreak: 15,
-    totalBets: 23,
-    totalWinnings: 4.56,
-    winRate: 73.9,
-    rank: 47,
+    currentStreak: profile?.currentStreak || 0,
+    longestStreak: profile?.longestStreak || 0,
+    totalBets: profile?.totalBets || 0,
+    totalWins: profile?.totalWins || 0,
+    winRate: profile && profile.totalBets > 0
+      ? ((profile.totalWins / profile.totalBets) * 100).toFixed(1)
+      : '0.0',
+    level: level,
+    totalXp: profile?.totalXp || 0,
   };
 
-  const recentBets = [
-    { id: 1, market: 'SOL $300', prediction: 'YES', amount: 0.5, status: 'won', payout: 0.75, time: '2h ago' },
-    { id: 2, market: 'BTC $100K', prediction: 'NO', amount: 0.3, status: 'won', payout: 0.45, time: '5h ago' },
-    { id: 3, market: 'ETH $5000', prediction: 'YES', amount: 0.4, status: 'active', payout: 0, time: '1d ago' },
-  ];
+  if (!publicKey) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="glass-panel rounded-3xl border border-neon-purple/30 p-8 text-center max-w-md"
+        >
+          <Shield className="w-16 h-16 text-neon-purple mx-auto mb-4" />
+          <h3 className="font-orbitron font-bold text-2xl text-white mb-2">
+            Connect Your Wallet
+          </h3>
+          <p className="text-gray-400">
+            Connect your Solana wallet to view your dashboard
+          </p>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="font-orbitron font-black text-5xl md:text-6xl text-white mb-3">
-          Dashboard
-        </h1>
-        <p className="text-xl text-gray-400">
-          Track your performance and manage your streaks
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-orbitron font-black text-5xl md:text-6xl text-white mb-3">
+            Dashboard
+          </h1>
+          <p className="text-xl text-gray-400">Real-time data from Solana blockchain</p>
+        </div>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={handleRefresh}
+          disabled={refreshing}
+          className="p-3 glass-panel rounded-xl border border-white/10 hover:border-neon-cyan/50 transition-all disabled:opacity-50"
+        >
+          <RefreshCw className={`w-5 h-5 text-neon-cyan ${refreshing ? 'animate-spin' : ''}`} />
+        </motion.button>
       </div>
 
-      {/* Wallet Balance */}
+      {/* Balance */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -97,130 +106,88 @@ export default function DashboardPage() {
             <p className="text-4xl font-orbitron font-bold text-neon-cyan">
               {balance.toFixed(3)} SOL
             </p>
-            {publicKey && (
-              <a
-                href={`https://solscan.io/account/${publicKey.toBase58()}?cluster=devnet`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-gray-400 hover:text-neon-cyan flex items-center gap-1 justify-end mt-1"
-              >
-                View on Solscan <ExternalLink className="w-3 h-3" />
-              </a>
-            )}
+            <a
+              href={`https://solscan.io/account/${publicKey.toBase58()}?cluster=devnet`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-gray-400 hover:text-neon-cyan flex items-center gap-1 justify-end mt-1"
+            >
+              View on Solscan <ExternalLink className="w-3 h-3" />
+            </a>
           </div>
         </div>
       </motion.div>
 
-      {/* Stats Grid */}
+      {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="glass-panel rounded-2xl border border-neon-orange/30 p-6"
-        >
-          <Flame className="w-8 h-8 text-neon-orange mb-3" />
-          <p className="text-3xl font-orbitron font-bold text-white">{stats.currentStreak}</p>
-          <p className="text-sm text-gray-400">Current Streak</p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="glass-panel rounded-2xl border border-neon-green/30 p-6"
-        >
-          <TrendingUp className="w-8 h-8 text-neon-green mb-3" />
-          <p className="text-3xl font-orbitron font-bold text-white">{stats.winRate}%</p>
-          <p className="text-sm text-gray-400">Win Rate</p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="glass-panel rounded-2xl border border-neon-cyan/30 p-6"
-        >
-          <Trophy className="w-8 h-8 text-neon-cyan mb-3" />
-          <p className="text-3xl font-orbitron font-bold text-white">#{stats.rank}</p>
-          <p className="text-sm text-gray-400">Global Rank</p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="glass-panel rounded-2xl border border-neon-gold/30 p-6"
-        >
-          <p className="text-3xl font-orbitron font-bold text-neon-gold">{stats.totalWinnings}</p>
-          <p className="text-sm text-gray-400">Total Winnings (SOL)</p>
-        </motion.div>
+        <StatCard icon={Flame} value={stats.currentStreak} label="Current Streak" loading={profileLoading} />
+        <StatCard icon={TrendingUp} value={`${stats.winRate}%`} label="Win Rate" loading={profileLoading} />
+        <StatCard icon={Trophy} value={stats.longestStreak} label="Longest Streak" loading={profileLoading} />
+        <StatCard icon={Shield} value={`Level ${stats.level}`} label={`${stats.totalXp} XP`} loading={profileLoading} />
       </div>
 
-      {/* Streak Insurance */}
+      {/* Claim Winnings Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <h3 className="font-orbitron font-bold text-2xl text-white mb-4">Your Winnings</h3>
+        <ClaimWinnings />
+      </motion.div>
+
+      {/* Performance */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="glass-panel rounded-3xl border border-neon-purple/30 p-6"
+        className="glass-panel rounded-3xl border border-white/10 p-6"
       >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Shield className="w-8 h-8 text-neon-purple" />
-            <div>
-              <h3 className="font-orbitron font-bold text-xl text-white">Streak Insurance</h3>
-              <p className="text-sm text-gray-400">Protect your streak for 0.1 SOL</p>
-            </div>
+        <h3 className="font-orbitron font-bold text-2xl text-white mb-6">Performance</h3>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+          <div>
+            <p className="text-sm text-gray-400 mb-1">Total Bets</p>
+            <p className="text-3xl font-orbitron font-bold text-white">{stats.totalBets}</p>
           </div>
-          {hasInsurance ? (
-            <div className="px-4 py-2 bg-neon-green/20 border border-neon-green/30 rounded-lg">
-              <p className="text-neon-green font-semibold">Active</p>
-            </div>
-          ) : (
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handlePurchaseInsurance}
-              disabled={loading}
-              className="px-6 py-3 bg-neon-purple text-white font-orbitron font-bold rounded-xl hover:shadow-lg hover:shadow-neon-purple/50 transition-all disabled:opacity-50"
-            >
-              {loading ? 'Processing...' : 'Purchase'}
-            </motion.button>
-          )}
+          <div>
+            <p className="text-sm text-gray-400 mb-1">Total Wins</p>
+            <p className="text-3xl font-orbitron font-bold text-neon-green">{stats.totalWins}</p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-400 mb-1">Current Multiplier</p>
+            <p className="text-3xl font-orbitron font-bold text-neon-orange">{multiplier}x</p>
+          </div>
         </div>
       </motion.div>
 
-      {/* Recent Bets */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-        className="glass-panel rounded-3xl border border-white/10 p-6"
-      >
-        <h3 className="font-orbitron font-bold text-2xl text-white mb-6">Recent Bets</h3>
-        <div className="space-y-3">
-          {recentBets.map((bet) => (
-            <div
-              key={bet.id}
-              className="flex items-center justify-between p-4 glass-panel rounded-xl border border-white/5"
-            >
-              <div>
-                <p className="font-semibold text-white">{bet.market}</p>
-                <p className="text-sm text-gray-400">{bet.time}</p>
-              </div>
-              <div className="text-right">
-                <p className={`font-orbitron font-bold ${bet.status === 'won' ? 'text-neon-green' :
-                    bet.status === 'lost' ? 'text-neon-pink' : 'text-gray-400'
-                  }`}>
-                  {bet.status === 'won' ? `+${bet.payout} SOL` :
-                    bet.status === 'lost' ? `-${bet.amount} SOL` : 'Pending'}
-                </p>
-                <p className="text-xs text-gray-400">{bet.prediction}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </motion.div>
+      {/* On-Chain Indicator */}
+      <div className="p-4 bg-neon-green/10 border border-neon-green/30 rounded-xl">
+        <p className="text-xs text-gray-300 flex items-center gap-2">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-neon-green opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-neon-green"></span>
+          </span>
+          All data fetched from Solana blockchain - Click refresh to update
+        </p>
+      </div>
     </div>
+  );
+}
+
+function StatCard({ icon: Icon, value, label, loading }: any) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="glass-panel rounded-2xl border border-white/20 p-6"
+    >
+      <Icon className="w-8 h-8 text-neon-cyan mb-3" />
+      {loading ? (
+        <div className="h-10 w-24 bg-white/5 animate-pulse rounded mb-2" />
+      ) : (
+        <p className="text-3xl font-orbitron font-bold text-white">{value}</p>
+      )}
+      <p className="text-sm text-gray-400">{label}</p>
+    </motion.div>
   );
 }

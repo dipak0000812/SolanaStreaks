@@ -17,39 +17,107 @@ const LEADERBOARD_DATA = [
   { rank: 10, address: "9pLt...4mQr", streak: 10, winnings: 48.3, winRate: 66, avatar: "💫" },
 ];
 
+function PodiumCard({ player, position }: { player: any; position: number }) {
+  const heights = { 1: "h-64 md:h-80", 2: "h-48 md:h-64", 3: "h-40 md:h-56" };
+  const colors = {
+    1: "from-neon-gold/30 to-neon-gold/10 border-neon-gold/50",
+    2: "from-gray-400/30 to-gray-400/10 border-gray-400/50",
+    3: "from-neon-orange/30 to-neon-orange/10 border-neon-orange/50",
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: position * 0.2 }}
+      className={`relative ${heights[position as keyof typeof heights]}`}
+    >
+      <div
+        className={`h-full glass-panel rounded-2xl border-2 bg-gradient-to-b ${colors[position as keyof typeof colors]
+          } p-3 md:p-6 flex flex-col items-center justify-between`}
+      >
+        {/* Crown for 1st place */}
+        {position === 1 && (
+          <motion.div
+            animate={{ y: [-5, 5, -5] }}
+            transition={{ repeat: Infinity, duration: 2 }}
+            className="absolute -top-8 md:-top-12 text-4xl md:text-6xl"
+          >
+            👑
+          </motion.div>
+        )}
+
+        {/* Rank Badge */}
+        <div className="text-center">
+          <div className="text-4xl md:text-6xl mb-2">{player.avatar}</div>
+          <div
+            className={`text-4xl md:text-6xl font-orbitron font-black ${position === 1 ? "text-neon-gold" : position === 2 ? "text-gray-300" : "text-neon-orange"
+              }`}
+          >
+            #{position}
+          </div>
+        </div>
+
+        {/* Player Info */}
+        <div className="text-center space-y-1 md:space-y-2 w-full">
+          <div className="font-mono text-xs md:text-sm text-gray-300 truncate px-2">{player.address}</div>
+          <div className="flex items-center justify-center gap-1">
+            <Flame className="w-3 h-3 md:w-4 md:h-4 text-neon-orange" />
+            <span className="font-orbitron font-bold text-sm md:text-lg text-white">{player.streak}</span>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="w-full space-y-1">
+          <div className="text-center">
+            <div className="text-xs md:text-sm text-gray-400">Winnings</div>
+            <div className="font-orbitron font-bold text-sm md:text-xl text-neon-green">
+              {player.winnings.toFixed(1)} SOL
+            </div>
+          </div>
+          <div className="text-center">
+            <div className="text-xs md:text-sm text-gray-400">Win Rate</div>
+            <div className="font-orbitron font-bold text-sm md:text-lg text-white">{player.winRate}%</div>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 export default function LeaderboardPage() {
   const topThree = LEADERBOARD_DATA.slice(0, 3);
   const restOfLeaders = LEADERBOARD_DATA.slice(3);
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-8 md:space-y-12 pb-24 md:pb-8">
       {/* Header */}
-      <div className="text-center">
+      <div className="text-center px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-full glass-panel border border-neon-gold/30 mb-6"
+          className="inline-flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 rounded-full glass-panel border border-neon-gold/30 mb-4 md:mb-6"
         >
-          <Crown className="w-5 h-5 text-neon-gold" />
-          <span className="font-orbitron font-semibold text-neon-gold uppercase tracking-wider text-sm">
+          <Crown className="w-4 h-4 md:w-5 md:h-5 text-neon-gold" />
+          <span className="font-orbitron font-semibold text-neon-gold uppercase tracking-wider text-xs md:text-sm">
             Hall of Fame
           </span>
         </motion.div>
 
-        <h1 className="font-orbitron font-black text-5xl md:text-7xl text-white mb-4">
+        <h1 className="font-orbitron font-black text-4xl md:text-5xl lg:text-7xl text-white mb-3 md:mb-4">
           Leaderboard
         </h1>
-        <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+        <p className="text-base md:text-xl text-gray-400 max-w-2xl mx-auto px-4">
           The elite traders who <span className="neon-text-green">dominate the markets</span> and build legendary streaks.
         </p>
       </div>
 
       {/* Podium - Top 3 */}
-      <div className="relative max-w-5xl mx-auto">
+      <div className="relative max-w-5xl mx-auto px-4">
         {/* Glow Effect */}
         <div className="absolute inset-0 bg-gradient-to-r from-neon-gold/20 via-neon-green/20 to-neon-purple/20 blur-3xl -z-10" />
 
-        <div className="grid grid-cols-3 gap-4 items-end">
+        <div className="grid grid-cols-3 gap-2 md:gap-4 items-end">
           {/* 2nd Place */}
           <PodiumCard player={topThree[1]} position={2} />
 
@@ -62,10 +130,10 @@ export default function LeaderboardPage() {
       </div>
 
       {/* Rest of Leaderboard */}
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-5xl mx-auto px-4">
         <div className="glass-panel rounded-2xl border border-white/10 overflow-hidden">
-          {/* Table Header */}
-          <div className="grid grid-cols-5 gap-4 p-6 border-b border-white/10 bg-white/5">
+          {/* Table Header - Hidden on mobile */}
+          <div className="hidden md:grid grid-cols-5 gap-4 p-6 border-b border-white/10 bg-white/5">
             <div className="font-orbitron font-semibold text-sm text-gray-400 uppercase tracking-wider">
               Rank
             </div>
@@ -91,141 +159,61 @@ export default function LeaderboardPage() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.05 }}
               whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
-              className="grid grid-cols-5 gap-4 p-6 border-b border-white/5 transition-colors"
+              className="grid grid-cols-4 md:grid-cols-5 gap-2 md:gap-4 p-3 md:p-6 border-b border-white/5 transition-colors items-center"
             >
-              <div className="flex items-center gap-3">
-                <span className="font-orbitron font-bold text-xl text-gray-400">
+              {/* Rank + Avatar */}
+              <div className="flex items-center gap-2">
+                <span className="font-orbitron font-bold text-lg md:text-xl text-gray-400">
                   #{player.rank}
                 </span>
+                <span className="text-xl md:text-2xl">{player.avatar}</span>
               </div>
 
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">{player.avatar}</span>
-                <span className="font-mono text-white">{player.address}</span>
+              {/* Trader Address */}
+              <div className="font-mono text-xs md:text-sm text-white truncate">
+                {player.address}
               </div>
 
-              <div className="flex items-center justify-end gap-2">
-                <Flame className="w-4 h-4 text-neon-orange" />
-                <span className="font-orbitron font-bold text-lg text-white">
-                  {player.streak}
-                </span>
+              {/* Streak */}
+              <div className="flex items-center justify-end gap-1">
+                <Flame className="w-3 h-3 md:w-4 md:h-4 text-neon-orange" />
+                <span className="font-orbitron font-bold text-sm md:text-base text-white">{player.streak}</span>
               </div>
 
-              <div className="flex items-center justify-end">
-                <span className="font-orbitron font-bold text-lg neon-text-green">
-                  {player.winnings} SOL
-                </span>
+              {/* Winnings */}
+              <div className="text-right">
+                <div className="font-orbitron font-bold text-xs md:text-base text-neon-green">
+                  {player.winnings.toFixed(1)}
+                </div>
+                <div className="text-[10px] md:text-xs text-gray-400">SOL</div>
               </div>
 
-              <div className="flex items-center justify-end">
-                <span className="font-orbitron font-bold text-lg text-white">
-                  {player.winRate}%
-                </span>
+              {/* Win Rate - Hidden on mobile */}
+              <div className="hidden md:block text-right">
+                <div className="font-orbitron font-bold text-base text-white">{player.winRate}%</div>
               </div>
             </motion.div>
           ))}
         </div>
-      </div>
 
-      {/* Your Rank CTA */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="max-w-2xl mx-auto text-center glass-panel rounded-2xl p-12 border-2 border-neon-green/30"
-      >
-        <Trophy className="w-16 h-16 text-neon-green mx-auto mb-4" />
-        <h3 className="font-orbitron font-bold text-3xl text-white mb-3">
-          Your Rank: <span className="neon-text-green">#42</span>
-        </h3>
-        <p className="text-gray-400 mb-6">
-          Build your streak to climb the leaderboard and earn legendary status.
-        </p>
-        <Link href="/markets">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="px-8 py-4 rounded-xl bg-success-gradient font-orbitron font-bold text-lg text-black shadow-lg shadow-neon-green/50"
-          >
-            START TRADING
-          </motion.button>
-        </Link>
-      </motion.div>
-    </div>
-  );
-}
-
-function PodiumCard({ player, position }: { player: typeof LEADERBOARD_DATA[0]; position: number }) {
-  const heights = {
-    1: "h-80",
-    2: "h-64",
-    3: "h-56"
-  };
-
-  const colors = {
-    1: "from-neon-gold to-neon-orange",
-    2: "from-gray-300 to-gray-400",
-    3: "from-neon-orange to-neon-pink"
-  };
-
-  const glows = {
-    1: "shadow-neon-gold",
-    2: "shadow-white/30",
-    3: "shadow-neon-orange"
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: position * 0.2 }}
-      whileHover={{ y: -8, scale: 1.05 }}
-      className={`relative ${heights[position as keyof typeof heights]}`}
-    >
-      <div className={`absolute inset-0 bg-gradient-to-br ${colors[position as keyof typeof colors]} opacity-20 blur-2xl -z-10`} />
-
-      <div className={`h-full glass-panel rounded-2xl border-2 ${position === 1 ? 'border-neon-gold' : 'border-white/20'} p-6 flex flex-col items-center justify-between ${glows[position as keyof typeof glows]}`}>
-        {/* Crown/Medal */}
+        {/* CTA */}
         <motion.div
-          animate={{ rotate: [0, 10, -10, 0] }}
-          transition={{ repeat: Infinity, duration: 3 }}
-          className="text-6xl mb-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="mt-8 md:mt-12 text-center"
         >
-          {player.avatar}
+          <Link href="/markets">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-6 md:px-8 py-3 md:py-4 bg-success-gradient text-black font-orbitron font-bold rounded-xl shadow-lg shadow-neon-green/50 hover:shadow-neon-green/70 transition-all text-sm md:text-base"
+            >
+              START TRADING
+            </motion.button>
+          </Link>
         </motion.div>
-
-        {/* Rank */}
-        <div className={`text-7xl font-orbitron font-black bg-gradient-to-br ${colors[position as keyof typeof colors]} bg-clip-text text-transparent`}>
-          #{position}
-        </div>
-
-        {/* Address */}
-        <div className="text-center space-y-2">
-          <p className="font-mono text-white font-bold">{player.address}</p>
-        </div>
-
-        {/* Stats */}
-        <div className="w-full space-y-3 mt-4">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-400">Streak</span>
-            <span className="font-orbitron font-bold text-white flex items-center gap-1">
-              <Flame className="w-4 h-4 text-neon-orange" />
-              {player.streak}
-            </span>
-          </div>
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-400">Winnings</span>
-            <span className="font-orbitron font-bold neon-text-green">
-              {player.winnings} SOL
-            </span>
-          </div>
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-400">Win Rate</span>
-            <span className="font-orbitron font-bold text-white">
-              {player.winRate}%
-            </span>
-          </div>
-        </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

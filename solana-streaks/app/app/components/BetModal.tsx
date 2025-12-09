@@ -60,8 +60,19 @@ export default function BetModal({ isOpen, onClose, market }: BetModalProps) {
             return;
         }
 
+        if (balance === 0) {
+            toast.error('Insufficient balance - You have 0 SOL', {
+                description: 'Get test SOL from the airdrop button in the navbar',
+                duration: 5000,
+            });
+            return;
+        }
+
         if (amount > balance) {
-            toast.error('Insufficient balance');
+            toast.error(`Insufficient balance - You have ${balance.toFixed(4)} SOL`, {
+                description: `You need ${amount.toFixed(4)} SOL to place this bet`,
+                duration: 5000,
+            });
             return;
         }
 
@@ -221,8 +232,8 @@ export default function BetModal({ isOpen, onClose, market }: BetModalProps) {
                                                 onClick={() => setSelectedOutcome(outcome.name)}
                                                 disabled={placing}
                                                 className={`p-4 rounded-xl border-2 transition-all disabled:opacity-50 ${selectedOutcome === outcome.name
-                                                        ? 'border-neon-green bg-neon-green/10'
-                                                        : 'border-white/10 hover:border-white/20'
+                                                    ? 'border-neon-green bg-neon-green/10'
+                                                    : 'border-white/10 hover:border-white/20'
                                                     }`}
                                             >
                                                 <div className="flex items-center justify-between mb-2">

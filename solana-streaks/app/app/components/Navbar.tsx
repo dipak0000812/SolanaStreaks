@@ -6,6 +6,7 @@ import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { motion } from "framer-motion";
 import { Home, TrendingUp, Flame, Trophy, PlusCircle, Gamepad2, DollarSign } from "lucide-react";
 import { cn } from "@/lib/utils";
+import DevnetAirdrop from "./DevnetAirdrop";
 
 const navItems = [
   { name: "Home", href: "/", icon: Home },
@@ -124,14 +125,17 @@ export default function Navbar() {
 
       {/* Mobile Top Bar (Wallet) */}
       <div className="md:hidden sticky top-0 z-50 glass-panel border-b border-white/10 backdrop-blur-xl">
-        <div className="flex items-center justify-between p-4">
+        <div className="flex items-center justify-between p-4 gap-2">
           <Link href="/" className="flex items-center gap-2">
             <span className="text-2xl">🔥</span>
             <span className="font-orbitron font-black text-lg bg-gradient-to-r from-neon-green to-neon-cyan bg-clip-text text-transparent">
               SOLANA STREAKS
             </span>
           </Link>
-          <WalletMultiButton className="!bg-gradient-to-r !from-neon-purple !to-neon-pink !rounded-xl !font-orbitron !font-bold !text-sm !px-4 !py-2" />
+          <div className="flex items-center gap-2">
+            <DevnetAirdrop />
+            <WalletMultiButton className="!bg-gradient-to-r !from-neon-purple !to-neon-pink !rounded-xl !font-orbitron !font-bold !text-sm !px-4 !py-2" />
+          </div>
         </div>
       </div>
     </>

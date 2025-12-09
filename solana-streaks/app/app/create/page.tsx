@@ -24,6 +24,25 @@ export default function CreateMarketPage() {
       return;
     }
 
+    // Check balance
+    const balance = await program.provider.connection.getBalance(publicKey);
+    const balanceInSOL = balance / 1000000000;
+
+    if (balanceInSOL === 0) {
+      toast.error('Insufficient balance - You have 0 SOL', {
+        description: 'Get test SOL from the airdrop button in the navbar',
+        duration: 5000,
+      });
+      return;
+    }
+
+    if (balanceInSOL < 0.01) {
+      toast.error(`Low balance - You have ${balanceInSOL.toFixed(4)} SOL`, {
+        description: 'You may not have enough SOL for transaction fees',
+        duration: 5000,
+      });
+    }
+
     if (!question.trim()) {
       toast.error('Please enter a market question');
       return;

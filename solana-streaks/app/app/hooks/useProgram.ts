@@ -3,53 +3,22 @@
 import { useMemo } from 'react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
-import { Program, AnchorProvider } from '@coral-xyz/anchor';
+import { Program, AnchorProvider, BN } from '@coral-xyz/anchor';
+import IDL from '@/lib/idl.json';
 
-// Program ID from deployed smart contract
-const PROGRAM_ID = new PublicKey(
-    process.env.NEXT_PUBLIC_PROGRAM_ID || 'B5Rz9UoWgLrfzYppYpZpBpLzNCTuYV5Fjh3uGJd2UsbQ'
-);
-
-// Minimal IDL - will be replaced with full IDL after generation
-const IDL = {
-    version: "0.1.0",
-    name: "solana_streaks",
-    address: "B5Rz9UoWgLrfzYppYpZpBpLzNCTuYV5Fjh3uGJd2UsbQ",
-    instructions: [
-        {
-            name: "initializeMarket",
-            accounts: [],
-            args: []
-        },
-        {
-            name: "placeBet",
-            accounts: [],
-            args: []
-        },
-        {
-            name: "resolveMarket",
-            accounts: [],
-            args: []
-        },
-        {
-            name: "claimWinnings",
-            accounts: [],
-            args: []
-        }
-    ]
-};
+const PROGRAM_ID = new PublicKey('B5Rz9UoWgLrfzYppYpZpBpLzNCTuYV5Fjh3uGJd2UsbQ');
 
 export function useProgram() {
     const { connection } = useConnection();
     const wallet = useWallet();
 
     const provider = useMemo(() => {
-        if (!wallet.publicKey) return null;
+        if (!wallet.publicKey || !wallet.signTransaction) return null;
 
         return new AnchorProvider(
             connection,
             wallet as any,
-            { commitment: 'confirmed' }
+            { commitment: 'confirmed', preflightCommitment: 'confirmed' }
         );
     }, [connection, wallet]);
 
@@ -57,12 +26,41 @@ export function useProgram() {
         if (!provider) return null;
 
         try {
-            return new Program(IDL as any, provider);
+            // @ts-ignore - Anchor types can be complex
+            return new Program(IDL, PROGRAM_ID, provider);
         } catch (error) {
             console.error('Failed to initialize program:', error);
             return null;
         }
     }, [provider]);
 
-    return { program, provider };
+    // Helper to derive PDAs
+    const getPDAs = useMemo(() => {
+        return {
+            getUserProfilePDA: (userPubkey: PublicKey) => {
+                return PublicKey.findProgramAddressSync(
+                    [Buffer.from('user-profile'), userPubkey.toBuffer()],
+                    PROGRAM_ID
+                );
+            },
+            getMarketPDA: (authority: PublicKey, marketId: string) => {
+                return PublicKey.findProgramAddressSync(
+                    [Buffer.from('market'), authority.toBuffer(), Buffer.from(marketId)],
+                    PROGRAM_ID
+                );
+            },
+            getBetPDA: (market: PublicKey, user: PublicKey) => {
+                return PublicKey.findProgramAddressSync(
+                    [Buffer.from('bet'), market.toBuffer(), user.toBuffer()],
+                    PROGRAM_ID
+                );
+            },
+        };
+    }, []);
+
+    return { program, provider, getPDAs, programId: PROGRAM_ID };
 }
+
+// Type exports for better TypeScript support
+export type { Program } from '@coral-xyz/anchor';
+export { BN };

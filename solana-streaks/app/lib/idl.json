@@ -1,0 +1,261 @@
+{
+    "version": "0.1.0",
+    "name": "solana_streaks",
+    "instructions": [
+        {
+            "name": "initializeMarket",
+            "accounts": [
+                {
+                    "name": "market",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "authority",
+                    "isMut": true,
+                    "isSigner": true
+                },
+                {
+                    "name": "systemProgram",
+                    "isMut": false,
+                    "isSigner": false
+                }
+            ],
+            "args": [
+                {
+                    "name": "question",
+                    "type": "string"
+                },
+                {
+                    "name": "outcomes",
+                    "type": {
+                        "vec": "string"
+                    }
+                },
+                {
+                    "name": "resolutionTime",
+                    "type": "i64"
+                },
+                {
+                    "name": "oracleSource",
+                    "type": {
+                        "option": "publicKey"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "placeBet",
+            "accounts": [
+                {
+                    "name": "bet",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "market",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "userProfile",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "user",
+                    "isMut": true,
+                    "isSigner": true
+                },
+                {
+                    "name": "systemProgram",
+                    "isMut": false,
+                    "isSigner": false
+                }
+            ],
+            "args": [
+                {
+                    "name": "prediction",
+                    "type": "u8"
+                },
+                {
+                    "name": "amount",
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "name": "resolveMarket",
+            "accounts": [
+                {
+                    "name": "market",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "authority",
+                    "isMut": false,
+                    "isSigner": true
+                }
+            ],
+            "args": [
+                {
+                    "name": "winningOutcome",
+                    "type": "u8"
+                }
+            ]
+        },
+        {
+            "name": "claimWinnings",
+            "accounts": [
+                {
+                    "name": "bet",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "market",
+                    "isMut": false,
+                    "isSigner": false
+                },
+                {
+                    "name": "userProfile",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "user",
+                    "isMut": true,
+                    "isSigner": true
+                },
+                {
+                    "name": "systemProgram",
+                    "isMut": false,
+                    "isSigner": false
+                }
+            ],
+            "args": []
+        }
+    ],
+    "accounts": [
+        {
+            "name": "Market",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "authority",
+                        "type": "publicKey"
+                    },
+                    {
+                        "name": "question",
+                        "type": "string"
+                    },
+                    {
+                        "name": "outcomes",
+                        "type": {
+                            "vec": "string"
+                        }
+                    },
+                    {
+                        "name": "resolutionTime",
+                        "type": "i64"
+                    },
+                    {
+                        "name": "totalPool",
+                        "type": "u64"
+                    },
+                    {
+                        "name": "resolved",
+                        "type": "bool"
+                    },
+                    {
+                        "name": "winningOutcome",
+                        "type": {
+                            "option": "u8"
+                        }
+                    },
+                    {
+                        "name": "oracleSource",
+                        "type": {
+                            "option": "publicKey"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "UserProfile",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "authority",
+                        "type": "publicKey"
+                    },
+                    {
+                        "name": "totalBets",
+                        "type": "u64"
+                    },
+                    {
+                        "name": "totalWins",
+                        "type": "u64"
+                    },
+                    {
+                        "name": "currentStreak",
+                        "type": "u32"
+                    },
+                    {
+                        "name": "longestStreak",
+                        "type": "u32"
+                    },
+                    {
+                        "name": "totalXp",
+                        "type": "u64"
+                    },
+                    {
+                        "name": "hasInsurance",
+                        "type": "bool"
+                    },
+                    {
+                        "name": "insuranceExpiry",
+                        "type": "i64"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Bet",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "market",
+                        "type": "publicKey"
+                    },
+                    {
+                        "name": "user",
+                        "type": "publicKey"
+                    },
+                    {
+                        "name": "amount",
+                        "type": "u64"
+                    },
+                    {
+                        "name": "prediction",
+                        "type": "u8"
+                    },
+                    {
+                        "name": "claimed",
+                        "type": "bool"
+                    },
+                    {
+                        "name": "timestamp",
+                        "type": "i64"
+                    }
+                ]
+            }
+        }
+    ],
+    "errors": []
+}

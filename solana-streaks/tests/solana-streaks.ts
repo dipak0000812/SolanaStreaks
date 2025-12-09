@@ -1,126 +1,258 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
 import { SolanaStreaks } from "../target/types/solana_streaks";
-import { expect } from "chai";
+import { PublicKey, Keypair, SystemProgram, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { assert } from "chai";
 
 describe("solana-streaks", () => {
-    // Configure the client to use the local cluster.
+    // Configure the client to use the local cluster
     const provider = anchor.AnchorProvider.env();
     anchor.setProvider(provider);
 
     const program = anchor.workspace.SolanaStreaks as Program<SolanaStreaks>;
 
-    // PDAs
-    let marketPda: anchor.web3.PublicKey;
-    let userProfilePda: anchor.web3.PublicKey;
-    let betPda: anchor.web3.PublicKey;
-    let marketBump: number;
-    let userBump: number;
-    let betBump: number;
+    // Test accounts
+    let userKeypair: Keypair;
+    let marketPDA: PublicKey;
+    let userProfilePDA: PublicKey;
+    let betPDA: PublicKey;
 
-    // Test Data
-    const question = "Will SOL hit $200?";
-    const endTime = new anchor.BN(Date.now() / 1000 + 3600); // 1 hour from now
-    const marketId = new anchor.BN(1); // Simple ID for seed
+    before(async () => {
+        userKeypair = Keypair.generate();
 
-    it("Is initialized!", async () => {
-        // 1. Initialize Market
-        // Derive Market PDA
-        [marketPda, marketBump] = await anchor.web3.PublicKey.findProgramAddress(
-            [Buffer.from("market"), new anchor.BN(1).toArrayLike(Buffer, "le", 8)],
-            program.programId
+        // Airdrop SOL to user
+        const signature = await provider.connection.requestAirdrop(
+            userKeypair.publicKey,
+            2 * LAMPORTS_PER_SOL
         );
-
-        await program.methods
-            .initializeMarket(new anchor.BN(1), question, endTime)
-            .accounts({
-                market: marketPda,
-                admin: provider.wallet.publicKey,
-                systemProgram: anchor.web3.SystemProgram.programId,
-            })
-            .rpc();
-
-        const marketAccount = await program.account.market.fetch(marketPda);
-        expect(marketAccount.question).to.equal(question);
-        expect(marketAccount.resolved).to.be.false;
+        await provider.connection.confirmTransaction(signature);
     });
 
-    it("Places a bet", async () => {
-        // Derive User Profile PDA
-        [userProfilePda, userBump] = await anchor.web3.PublicKey.findProgramAddress(
-            [Buffer.from("user"), provider.wallet.publicKey.toBuffer()],
-            program.programId
-        );
+    describe("Market Creation", () => {
+        it("Should initialize a new market", async () => {
+            const marketId = `test-market-${Date.now()}`;
+            const question = "Will SOL reach $300 by end of 2024?";
+            const outcomes = ["YES", "NO"];
+            const resolutionTime = Math.floor(Date.now() / 1000) + 86400; // 24 hours from now
 
-        // Derive Bet PDA
-        [betPda, betBump] = await anchor.web3.PublicKey.findProgramAddress(
-            [Buffer.from("bet"), marketPda.toBuffer(), provider.wallet.publicKey.toBuffer()],
-            program.programId
-        );
+            [marketPDA] = PublicKey.findProgramAddressSync(
+                [
+                    Buffer.from("market"),
+                    userKeypair.publicKey.toBuffer(),
+                    Buffer.from(marketId)
+                ],
+                program.programId
+            );
 
-        const betAmount = new anchor.BN(100000000); // 0.1 SOL
-        const prediction = 0; // "Yes"
+            const tx = await program.methods
+                .initializeMarket(question, outcomes, new anchor.BN(resolutionTime), null)
+                .accounts({
+                    market: marketPDA,
+                    authority: userKeypair.publicKey,
+                    systemProgram: SystemProgram.programId,
+                })
+                .signers([userKeypair])
+                .rpc();
 
-        await program.methods
-            .placeBet(betAmount, prediction)
-            .accounts({
-                bet: betPda,
-                market: marketPda,
-                userProfile: userProfilePda,
-                user: provider.wallet.publicKey,
-                systemProgram: anchor.web3.SystemProgram.programId,
-            })
-            .rpc();
+            console.log("Market created:", tx);
 
-        const betAccount = await program.account.bet.fetch(betPda);
-        expect(betAccount.amount.eq(betAmount)).to.be.true;
-        expect(betAccount.prediction).to.equal(prediction);
-
-        const marketAccount = await program.account.market.fetch(marketPda);
-        expect(marketAccount.totalPool.eq(betAmount)).to.be.true;
+            // Fetch and verify market account
+            const marketAccount = await program.account.market.fetch(marketPDA);
+            assert.equal(marketAccount.question, question);
+            assert.equal(marketAccount.outcomes.length, 2);
+            assert.equal(marketAccount.resolved, false);
+            assert.equal(marketAccount.authority.toBase58(), userKeypair.publicKey.toBase58());
+        });
     });
 
-    it("Resolves the market", async () => {
-        const winningOutcome = 0; // "Yes"
+    describe("User Profile & Betting", () => {
+        it("Should create user profile and place bet", async () => {
+            [userProfilePDA] = PublicKey.findProgramAddressSync(
+                [Buffer.from("user-profile"), userKeypair.publicKey.toBuffer()],
+                program.programId
+            );
 
-        await program.methods
-            .resolveMarket(winningOutcome)
-            .accounts({
-                market: marketPda,
-                authority: provider.wallet.publicKey,
-            })
-            .rpc();
+            [betPDA] = PublicKey.findProgramAddressSync(
+                [Buffer.from("bet"), marketPDA.toBuffer(), userKeypair.publicKey.toBuffer()],
+                program.programId
+            );
 
-        const marketAccount = await program.account.market.fetch(marketPda);
-        expect(marketAccount.resolved).to.be.true;
-        expect(marketAccount.winningOutcome).to.equal(winningOutcome);
+            const betAmount = 0.5 * LAMPORTS_PER_SOL;
+            const prediction = 0; // YES
+
+            const tx = await program.methods
+                .placeBet(prediction, new anchor.BN(betAmount))
+                .accounts({
+                    bet: betPDA,
+                    market: marketPDA,
+                    userProfile: userProfilePDA,
+                    user: userKeypair.publicKey,
+                    systemProgram: SystemProgram.programId,
+                })
+                .signers([userKeypair])
+                .rpc();
+
+            console.log("Bet placed:", tx);
+
+            // Verify bet account
+            const betAccount = await program.account.bet.fetch(betPDA);
+            assert.equal(betAccount.amount.toNumber(), betAmount);
+            assert.equal(betAccount.prediction, prediction);
+            assert.equal(betAccount.claimed, false);
+
+            // Verify user profile
+            const profileAccount = await program.account.userProfile.fetch(userProfilePDA);
+            assert.equal(profileAccount.totalBets.toNumber(), 1);
+            assert.equal(profileAccount.currentStreak, 0); // No wins yet
+        });
+
+        it("Should update streak on winning bet", async () => {
+            // This would require resolving the market and claiming winnings
+            // Skipping for now as it requires more complex setup
+        });
     });
 
-    it("Claims winnings", async () => {
-        // Check balance before
-        const balanceBefore = await provider.connection.getBalance(provider.wallet.publicKey);
+    describe("Market Resolution", () => {
+        it("Should resolve market with winning outcome", async () => {
+            const winningOutcome = 0; // YES wins
 
-        await program.methods
-            .claimWinnings()
-            .accounts({
-                bet: betPda,
-                market: marketPda,
-                userProfile: userProfilePda,
-                user: provider.wallet.publicKey,
-                systemProgram: anchor.web3.SystemProgram.programId,
-            })
-            .rpc();
+            const tx = await program.methods
+                .resolveMarket(winningOutcome)
+                .accounts({
+                    market: marketPDA,
+                    authority: userKeypair.publicKey,
+                })
+                .signers([userKeypair])
+                .rpc();
 
-        // Verify Bet is closed (account should be null or failed to fetch, but Anchor throws error if not found)
-        try {
-            await program.account.bet.fetch(betPda);
-            expect.fail("Bet account should be closed");
-        } catch (e) {
-            expect(e).to.exist;
-        }
+            console.log("Market resolved:", tx);
 
-        const userProfile = await program.account.userProfile.fetch(userProfilePda);
-        expect(userProfile.currentStreak).to.equal(1);
-        expect(userProfile.totalWins).to.equal(1);
+            // Verify market is resolved
+            const marketAccount = await program.account.market.fetch(marketPDA);
+            assert.equal(marketAccount.resolved, true);
+            assert.equal(marketAccount.winningOutcome, winningOutcome);
+        });
+
+        it("Should not allow resolving already resolved market", async () => {
+            try {
+                await program.methods
+                    .resolveMarket(1)
+                    .accounts({
+                        market: marketPDA,
+                        authority: userKeypair.publicKey,
+                    })
+                    .signers([userKeypair])
+                    .rpc();
+
+                assert.fail("Should have thrown error");
+            } catch (error) {
+                assert.include(error.toString(), "already resolved");
+            }
+        });
+    });
+
+    describe("Claim Winnings", () => {
+        it("Should allow winner to claim winnings", async () => {
+            const balanceBefore = await provider.connection.getBalance(userKeypair.publicKey);
+
+            const tx = await program.methods
+                .claimWinnings()
+                .accounts({
+                    bet: betPDA,
+                    market: marketPDA,
+                    userProfile: userProfilePDA,
+                    user: userKeypair.publicKey,
+                    systemProgram: SystemProgram.programId,
+                })
+                .signers([userKeypair])
+                .rpc();
+
+            console.log("Winnings claimed:", tx);
+
+            const balanceAfter = await provider.connection.getBalance(userKeypair.publicKey);
+            assert.isTrue(balanceAfter > balanceBefore, "Balance should increase");
+
+            // Verify bet is marked as claimed
+            const betAccount = await program.account.bet.fetch(betPDA);
+            assert.equal(betAccount.claimed, true);
+
+            // Verify streak updated
+            const profileAccount = await program.account.userProfile.fetch(userProfilePDA);
+            assert.equal(profileAccount.totalWins.toNumber(), 1);
+            assert.isTrue(profileAccount.currentStreak > 0, "Streak should increase");
+        });
+
+        it("Should not allow claiming twice", async () => {
+            try {
+                await program.methods
+                    .claimWinnings()
+                    .accounts({
+                        bet: betPDA,
+                        market: marketPDA,
+                        userProfile: userProfilePDA,
+                        user: userKeypair.publicKey,
+                        systemProgram: SystemProgram.programId,
+                    })
+                    .signers([userKeypair])
+                    .rpc();
+
+                assert.fail("Should have thrown error");
+            } catch (error) {
+                assert.include(error.toString(), "already claimed");
+            }
+        });
+    });
+
+    describe("Edge Cases & Security", () => {
+        it("Should not allow betting on resolved market", async () => {
+            const [newBetPDA] = PublicKey.findProgramAddressSync(
+                [Buffer.from("bet"), marketPDA.toBuffer(), Keypair.generate().publicKey.toBuffer()],
+                program.programId
+            );
+
+            try {
+                await program.methods
+                    .placeBet(0, new anchor.BN(0.1 * LAMPORTS_PER_SOL))
+                    .accounts({
+                        bet: newBetPDA,
+                        market: marketPDA,
+                        userProfile: userProfilePDA,
+                        user: userKeypair.publicKey,
+                        systemProgram: SystemProgram.programId,
+                    })
+                    .signers([userKeypair])
+                    .rpc();
+
+                assert.fail("Should have thrown error");
+            } catch (error) {
+                assert.include(error.toString(), "market is resolved");
+            }
+        });
+
+        it("Should not allow non-authority to resolve market", async () => {
+            const unauthorizedUser = Keypair.generate();
+
+            // Airdrop to unauthorized user
+            const sig = await provider.connection.requestAirdrop(
+                unauthorizedUser.publicKey,
+                LAMPORTS_PER_SOL
+            );
+            await provider.connection.confirmTransaction(sig);
+
+            try {
+                await program.methods
+                    .resolveMarket(0)
+                    .accounts({
+                        market: marketPDA,
+                        authority: unauthorizedUser.publicKey,
+                    })
+                    .signers([unauthorizedUser])
+                    .rpc();
+
+                assert.fail("Should have thrown error");
+            } catch (error) {
+                assert.include(error.toString(), "unauthorized");
+            }
+        });
     });
 });

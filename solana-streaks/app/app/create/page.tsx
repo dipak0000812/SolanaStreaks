@@ -2,22 +2,24 @@
 
 import { useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { PublicKey, SystemProgram, Keypair } from '@solana/web3.js';
 import { toast } from 'sonner';
-import { useBlockchain } from '../hooks/useBlockchain';
+import { useProgram, BN } from '../hooks/useProgram';
 import { motion } from 'framer-motion';
-import { Calendar, Plus, TrendingUp } from 'lucide-react';
+import { Calendar, Plus, TrendingUp, Loader2 } from 'lucide-react';
 
 export default function CreateMarketPage() {
   const { publicKey } = useWallet();
-  const { sendTransaction, loading } = useBlockchain();
+  const { program, getPDAs } = useProgram();
+
   const [question, setQuestion] = useState('');
   const [outcomes, setOutcomes] = useState(['YES', 'NO']);
   const [resolutionDate, setResolutionDate] = useState('');
   const [category, setCategory] = useState('Crypto');
+  const [creating, setCreating] = useState(false);
 
   const handleCreateMarket = async () => {
-    if (!publicKey) {
+    if (!publicKey || !program) {
       toast.error('Please connect your wallet first!');
       return;
     }
@@ -32,30 +34,69 @@ export default function CreateMarketPage() {
       return;
     }
 
-    // Create transaction (demo: small fee to program)
-    const transaction = new Transaction().add(
-      SystemProgram.transfer({
-        fromPubkey: publicKey,
-        toPubkey: new PublicKey('B5Rz9UoWgLrfzYppYpZpBpLzNCTuYV5Fjh3uGJd2UsbQ'),
-        lamports: 0.01 * LAMPORTS_PER_SOL, // 0.01 SOL creation fee
-      })
-    );
+    const resolutionTime = new Date(resolutionDate).getTime() / 1000;
+    if (resolutionTime <= Date.now() / 1000) {
+      toast.error('Resolution date must be in the future');
+      return;
+    }
 
-    const signature = await sendTransaction(
-      transaction,
-      'Creating prediction market'
-    );
+    setCreating(true);
+    const toastId = toast.loading('Creating market on-chain...');
 
-    if (signature) {
+    try {
+      // Generate unique market ID
+      const marketId = `market-${Date.now()}`;
+      const [marketPDA] = getPDAs.getMarketPDA(publicKey, marketId);
+
+      // Call smart contract
+      const tx = await program.methods
+        .initializeMarket(
+          question,
+          outcomes,
+          new BN(resolutionTime),
+          null // No oracle for now
+        )
+        .accounts({
+          market: marketPDA,
+          authority: publicKey,
+          systemProgram: SystemProgram.programId,
+        })
+        .rpc();
+
       toast.success('Market created successfully!', {
-        description: 'Your market is now live',
-        duration: 5000,
+        id: toastId,
+        description: 'Your market is now live on Solana',
+        action: {
+          label: 'View',
+          onClick: () => window.open(
+            `https://solscan.io/tx/${tx}?cluster=devnet`,
+            '_blank'
+          ),
+        },
+        duration: 10000,
       });
 
       // Reset form
       setQuestion('');
       setOutcomes(['YES', 'NO']);
       setResolutionDate('');
+
+    } catch (error: any) {
+      console.error('Market creation error:', error);
+
+      let errorMessage = 'Failed to create market';
+      if (error.message?.includes('insufficient')) {
+        errorMessage = 'Insufficient SOL balance';
+      } else if (error.message?.includes('rejected')) {
+        errorMessage = 'Transaction rejected';
+      }
+
+      toast.error(errorMessage, {
+        id: toastId,
+        description: error.message || 'Please try again',
+      });
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -80,26 +121,30 @@ export default function CreateMarketPage() {
         {/* Market Question */}
         <div>
           <label className="block text-sm font-semibold text-gray-400 mb-3">
-            Market Question
+            Market Question *
           </label>
           <input
             type="text"
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             placeholder="Will Bitcoin reach $100,000 by end of 2024?"
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-neon-green/50 transition-colors"
+            disabled={creating}
+            maxLength={200}
+            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-neon-green/50 transition-colors disabled:opacity-50"
           />
+          <p className="text-xs text-gray-500 mt-1">{question.length}/200 characters</p>
         </div>
 
         {/* Category */}
         <div>
           <label className="block text-sm font-semibold text-gray-400 mb-3">
-            Category
+            Category *
           </label>
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-neon-green/50 transition-colors"
+            disabled={creating}
+            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-neon-green/50 transition-colors disabled:opacity-50"
           >
             <option value="Crypto">Crypto</option>
             <option value="Sports">Sports</option>
@@ -112,21 +157,23 @@ export default function CreateMarketPage() {
         {/* Resolution Date */}
         <div>
           <label className="block text-sm font-semibold text-gray-400 mb-3">
-            Resolution Date
+            Resolution Date *
           </label>
           <input
-            type="date"
+            type="datetime-local"
             value={resolutionDate}
             onChange={(e) => setResolutionDate(e.target.value)}
-            min={new Date().toISOString().split('T')[0]}
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-neon-green/50 transition-colors"
+            min={new Date().toISOString().slice(0, 16)}
+            disabled={creating}
+            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-neon-green/50 transition-colors disabled:opacity-50"
           />
+          <p className="text-xs text-gray-500 mt-1">When should this market be resolved?</p>
         </div>
 
         {/* Outcomes */}
         <div>
           <label className="block text-sm font-semibold text-gray-400 mb-3">
-            Outcomes
+            Outcomes *
           </label>
           <div className="grid grid-cols-2 gap-3">
             {outcomes.map((outcome, index) => (
@@ -139,7 +186,9 @@ export default function CreateMarketPage() {
                   newOutcomes[index] = e.target.value;
                   setOutcomes(newOutcomes);
                 }}
-                className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-neon-green/50 transition-colors"
+                disabled={creating}
+                maxLength={20}
+                className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-neon-green/50 transition-colors disabled:opacity-50"
               />
             ))}
           </div>
@@ -147,18 +196,21 @@ export default function CreateMarketPage() {
 
         {/* Create Button */}
         <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+          whileHover={{ scale: creating ? 1 : 1.02 }}
+          whileTap={{ scale: creating ? 1 : 0.98 }}
           onClick={handleCreateMarket}
-          disabled={loading || !publicKey}
+          disabled={creating || !publicKey}
           className="w-full bg-success-gradient text-black font-orbitron font-bold text-lg py-4 rounded-xl shadow-lg shadow-neon-green/50 hover:shadow-neon-green/70 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          {loading ? (
-            'Creating...'
+          {creating ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              Creating on Solana...
+            </>
           ) : (
             <>
               <Plus className="w-5 h-5" />
-              CREATE MARKET
+              CREATE MARKET ON-CHAIN
             </>
           )}
         </motion.button>
@@ -170,11 +222,31 @@ export default function CreateMarketPage() {
         )}
 
         {/* Info */}
-        <div className="glass-panel rounded-xl p-4 border border-neon-cyan/30">
-          <p className="text-sm text-gray-400">
-            <span className="text-neon-cyan font-semibold">Creation Fee:</span> 0.01 SOL
-            <br />
-            <span className="text-neon-cyan font-semibold">Creator Earnings:</span> 2% of all bets
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="glass-panel rounded-xl p-4 border border-neon-cyan/30">
+            <p className="text-sm text-gray-400">
+              <span className="text-neon-cyan font-semibold">Creation Fee:</span> ~0.01 SOL
+              <br />
+              <span className="text-xs">Covers rent for market account</span>
+            </p>
+          </div>
+          <div className="glass-panel rounded-xl p-4 border border-neon-green/30">
+            <p className="text-sm text-gray-400">
+              <span className="text-neon-green font-semibold">Creator Earnings:</span> 2% of all bets
+              <br />
+              <span className="text-xs">Automatic distribution on resolution</span>
+            </p>
+          </div>
+        </div>
+
+        {/* On-Chain Indicator */}
+        <div className="p-4 bg-neon-purple/10 border border-neon-purple/30 rounded-xl">
+          <p className="text-xs text-gray-300 flex items-center gap-2">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-neon-purple opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-neon-purple"></span>
+            </span>
+            Market will be stored permanently on Solana blockchain
           </p>
         </div>
       </motion.div>

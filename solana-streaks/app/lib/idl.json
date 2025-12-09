@@ -1,6 +1,9 @@
 {
     "version": "0.1.0",
     "name": "solana_streaks",
+    "metadata": {
+        "address": "B5Rz9UoWgLrfzYppYpZpBpLzNCTuYV5Fjh3uGJd2UsbQ"
+    },
     "instructions": [
         {
             "name": "initializeMarket",

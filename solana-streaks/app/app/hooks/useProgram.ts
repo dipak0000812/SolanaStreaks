@@ -13,7 +13,7 @@ export function useProgram() {
     const wallet = useWallet();
 
     const provider = useMemo(() => {
-        if (!wallet.publicKey || !wallet.signTransaction) return null;
+        if (!wallet.publicKey) return null;
 
         return new AnchorProvider(
             connection,

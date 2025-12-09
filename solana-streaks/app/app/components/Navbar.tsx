@@ -95,7 +95,7 @@ export default function Navbar() {
 
       {/* Mobile Bottom Navigation */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass-panel border-t border-white/10 backdrop-blur-xl pb-safe">
-        <div className="grid grid-cols-6 gap-1 p-2">
+        <div className="grid grid-cols-7 gap-0.5 p-1.5">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
@@ -105,14 +105,14 @@ export default function Navbar() {
                 <motion.div
                   whileTap={{ scale: 0.9 }}
                   className={cn(
-                    "flex flex-col items-center justify-center py-3 px-2 rounded-xl transition-all",
+                    "flex flex-col items-center justify-center py-2 px-1 rounded-lg transition-all",
                     isActive
                       ? "bg-success-gradient text-black"
                       : "text-gray-400"
                   )}
                 >
-                  <Icon className="w-5 h-5 mb-1" />
-                  <span className="text-xs font-orbitron font-semibold">
+                  <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
+                  <span className="hidden min-[480px]:block text-[9px] min-[480px]:text-[10px] font-orbitron font-semibold mt-0.5 truncate max-w-full">
                     {item.name}
                   </span>
                 </motion.div>

@@ -3,7 +3,8 @@
 import { useMemo } from 'react';
 import { useConnection } from '@solana/wallet-adapter-react';
 
-// Simplified Pyth integration - uses mock data for demo
+// ⚠️ DEMO ONLY: Mock Pyth prices for demonstration
+// Real Pyth Network integration planned for production
 // In production, integrate with @pythnetwork/client
 
 export function usePyth() {

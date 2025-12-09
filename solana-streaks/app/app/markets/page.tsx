@@ -8,6 +8,7 @@ import Link from "next/link";
 import { LIVE_MARKETS } from "../../lib/mockData";
 import SocialBetting from "../components/SocialBetting";
 import BetModal from "../components/BetModal";
+import MarketResolution from "../components/MarketResolution";
 
 const CATEGORIES = ["All", "Crypto", "Sports", "Gaming", "Community", "Other"];
 
@@ -17,6 +18,7 @@ export default function MarketsPage() {
   const [expandedMarket, setExpandedMarket] = useState<string | null>(null);
   const [betModalOpen, setBetModalOpen] = useState(false);
   const [selectedBetMarket, setSelectedBetMarket] = useState<typeof LIVE_MARKETS[0] | null>(null);
+  const [showResolution, setShowResolution] = useState<string | null>(null);
 
   const filteredMarkets = LIVE_MARKETS.filter(market => {
     const matchesSearch = market.question.toLowerCase().includes(searchQuery.toLowerCase());

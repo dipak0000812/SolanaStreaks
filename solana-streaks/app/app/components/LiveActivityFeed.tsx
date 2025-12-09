@@ -15,6 +15,9 @@ interface Activity {
     icon: 'up' | 'down' | 'flame' | 'trophy' | 'dollar';
 }
 
+// ⚠️ DEMO MODE: Simulated activity feed for demonstration
+// In production, fetch real transactions from blockchain
+// TODO: Implement real-time activity feed from program.account.bet.all()
 export default function LiveActivityFeed() {
     const [activities, setActivities] = useState<Activity[]>([
         {
@@ -91,7 +94,7 @@ export default function LiveActivityFeed() {
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-neon-green opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-neon-green"></span>
                     </span>
-                    <span className="text-xs text-gray-400">Live</span>
+                    <span className="text-xs text-gray-400">Demo Mode</span>
                 </div>
             </div>
 

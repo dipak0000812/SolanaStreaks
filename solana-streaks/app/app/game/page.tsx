@@ -1,66 +1,138 @@
 "use client";
 
-import { useState } from "react";
-import { Card, CardContent } from "../components/ui/card";
-import { Button } from "../components/ui/button";
-import { ExternalLink, Gamepad2, Zap } from "lucide-react";
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Gamepad2, ExternalLink, Trophy, Users, Zap } from 'lucide-react';
+import Link from 'next/link';
 
 export default function GamePage() {
     const [isPlaying, setIsPlaying] = useState(false);
 
     const openFullScreen = () => {
-        const elem = document.querySelector('iframe');
-        if (elem) {
-            if (elem.requestFullscreen) {
-                elem.requestFullscreen();
-            }
+        const gameWindow = window.open('/game/index.html', '_blank');
+        if (gameWindow) {
+            gameWindow.focus();
         }
     };
 
     return (
-        <div className="h-[calc(100vh-8rem)] flex flex-col space-y-4">
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Prediction Arena</h1>
-                    <p className="text-muted-foreground">Enter the metaverse, chat with others, and visualize your streaks in 3D.</p>
-                </div>
-                <Button
-                    variant="outline"
-                    className="border-purple-500/50 text-purple-400 hover:bg-purple-500/10"
-                    onClick={openFullScreen}
+        <div className="min-h-screen space-y-8">
+            {/* Header */}
+            <div className="text-center space-y-4">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="inline-block"
                 >
-                    <ExternalLink className="mr-2 h-4 w-4" /> Open Full Screen
-                </Button>
+                    <div className="text-6xl mb-4">🎮</div>
+                    <h1 className="font-orbitron font-black text-5xl md:text-7xl text-white mb-4">
+                        PREDICTION ARENA
+                    </h1>
+                    <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+                        Multiplayer prediction game powered by <span className="text-neon-cyan">Moddio</span> & <span className="text-neon-green">Solana</span>
+                    </p>
+                </motion.div>
             </div>
 
-            <Card className="glass-panel border-0 flex-1 overflow-hidden relative group">
-                {!isPlaying && (
-                    <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center z-10 group-hover:bg-black/60 transition-colors">
-                        <Gamepad2 className="w-16 h-16 text-purple-500 mb-4 animate-pulse" />
-                        <h3 className="text-2xl font-bold mb-2">Moddio Game Loading...</h3>
-                        <p className="text-muted-foreground mb-6">Connecting to SolanaStreaks World Server</p>
-                        <Button
-                            size="lg"
-                            className="bg-purple-600 hover:bg-purple-700 font-orbitron font-bold"
-                            onClick={() => setIsPlaying(true)}
-                        >
-                            <span className="flex items-center gap-2">
-                                <Zap className="w-4 h-4" />
-                                Launch Game
-                            </span>
-                        </Button>
-                    </div>
-                )}
+            {/* Features Grid */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto"
+            >
+                <div className="glass-panel rounded-2xl border border-neon-green/30 p-6 text-center">
+                    <Users className="w-12 h-12 text-neon-green mx-auto mb-3" />
+                    <h3 className="font-orbitron font-bold text-lg text-white mb-2">Live Multiplayer</h3>
+                    <p className="text-sm text-gray-400">See other players' predictions in real-time</p>
+                </div>
 
-                {/* Iframe Stub for Moddio Game */}
-                <iframe
-                    src="https://www.moddio.com/games"
-                    className={`w-full h-full border-0 transition-opacity duration-1000 ${isPlaying ? 'opacity-100 pointer-events-auto' : 'opacity-30 pointer-events-none'}`}
-                    title="Prediction Arena"
-                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                />
-            </Card>
+                <div className="glass-panel rounded-2xl border border-neon-cyan/30 p-6 text-center">
+                    <Zap className="w-12 h-12 text-neon-cyan mx-auto mb-3" />
+                    <h3 className="font-orbitron font-bold text-lg text-white mb-2">Wallet Integration</h3>
+                    <p className="text-sm text-gray-400">Connect Phantom to see your stats</p>
+                </div>
+
+                <div className="glass-panel rounded-2xl border border-neon-purple/30 p-6 text-center">
+                    <Trophy className="w-12 h-12 text-neon-purple mx-auto mb-3" />
+                    <h3 className="font-orbitron font-bold text-lg text-white mb-2">Live Feed</h3>
+                    <p className="text-sm text-gray-400">Watch predictions happen on Solana</p>
+                </div>
+            </motion.div>
+
+            {/* Game Embed */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="max-w-6xl mx-auto"
+            >
+                <div className="glass-panel rounded-3xl border border-white/20 p-2 overflow-hidden">
+                    <div className="relative" style={{ paddingBottom: '56.25%', height: 0 }}>
+                        <iframe
+                            src="/game/index.html"
+                            className="absolute top-0 left-0 w-full h-full rounded-2xl"
+                            style={{ minHeight: '600px' }}
+                            allow="fullscreen"
+                            title="Prediction Arena Game"
+                        />
+                    </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-4 justify-center mt-6">
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={openFullScreen}
+                        className="px-8 py-4 bg-success-gradient text-black font-orbitron font-bold rounded-xl shadow-lg shadow-neon-green/50 hover:shadow-neon-green/70 transition-all flex items-center gap-2"
+                    >
+                        <ExternalLink className="w-5 h-5" />
+                        Open Full Screen
+                    </motion.button>
+
+                    <Link href="/markets">
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="px-8 py-4 glass-panel border border-neon-cyan/50 text-white font-orbitron font-bold rounded-xl hover:border-neon-cyan transition-all flex items-center gap-2"
+                        >
+                            <Gamepad2 className="w-5 h-5" />
+                            Place Real Bets
+                        </motion.button>
+                    </Link>
+                </div>
+            </motion.div>
+
+            {/* Info Section */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+                className="max-w-4xl mx-auto glass-panel rounded-3xl border border-white/10 p-8"
+            >
+                <h2 className="font-orbitron font-bold text-2xl text-white mb-4">How It Works</h2>
+                <div className="space-y-4 text-gray-300">
+                    <p>
+                        <span className="text-neon-green font-semibold">1. Connect Wallet:</span> Click the button in the game to connect your Phantom wallet
+                    </p>
+                    <p>
+                        <span className="text-neon-cyan font-semibold">2. View Live Feed:</span> See real predictions from other players on the Solana blockchain
+                    </p>
+                    <p>
+                        <span className="text-neon-purple font-semibold">3. Check Your Stats:</span> Your streak, level, and win rate display automatically
+                    </p>
+                    <p>
+                        <span className="text-neon-orange font-semibold">4. Place Bets:</span> Go to Markets page to place real predictions and earn rewards
+                    </p>
+                </div>
+
+                <div className="mt-6 p-4 bg-neon-green/10 border border-neon-green/30 rounded-xl">
+                    <p className="text-sm text-gray-300">
+                        <strong className="text-neon-green">Powered by Moddio:</strong> This multiplayer game is built with Moddio's game engine and integrated with SolanaStreaks for real-time blockchain data.
+                    </p>
+                </div>
+            </motion.div>
         </div>
     );
 }

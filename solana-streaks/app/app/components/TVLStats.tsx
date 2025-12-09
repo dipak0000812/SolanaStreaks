@@ -5,7 +5,9 @@ import { TrendingUp, Users, Flame, Trophy, DollarSign } from 'lucide-react';
 import AnimatedCounter from './AnimatedCounter';
 
 export default function TVLStats() {
-    // These would be fetched from blockchain in production
+    // ⚠️ DEMO MODE: Simulated stats for demonstration
+    // In production, these would be calculated from on-chain data
+    // TODO: Implement real TVL calculation from program.account.market.all()
     const stats = {
         totalMarketsCreated: 127,
         totalSOLWagered: 1847.3,
@@ -122,6 +124,7 @@ export default function TVLStats() {
                     <span className="relative inline-flex rounded-full h-3 w-3 bg-neon-green"></span>
                 </span>
                 <span>Live on Solana Devnet</span>
+                <span className="text-xs text-neon-orange">• Demo Stats</span>
             </motion.div>
         </div>
     );

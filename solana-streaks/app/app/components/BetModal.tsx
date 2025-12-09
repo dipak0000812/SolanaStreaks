@@ -49,28 +49,52 @@ export default function BetModal({ isOpen, onClose, market }: BetModalProps) {
     };
 
     const handlePlaceBet = async () => {
-        if (!publicKey || !program) {
-            toast.error('Please connect your wallet first!');
-            return;
-        }
-
-        const amount = parseFloat(betAmount);
-        if (!amount || amount <= 0) {
-            toast.error('Please enter a valid bet amount!');
-            return;
-        }
-
-        if (balance === 0) {
-            toast.error('Insufficient balance - You have 0 SOL', {
-                description: 'Get test SOL from the airdrop button in the navbar',
-                duration: 5000,
+        // Check wallet connection
+        if (!publicKey) {
+            toast.error('Wallet not connected', {
+                description: 'Please connect your wallet using the button in the top right',
             });
             return;
         }
 
+        // Check program initialization
+        if (!program) {
+            toast.error('Program not initialized', {
+                description: 'Please refresh the page and try again',
+            });
+            return;
+        }
+
+        // Validate bet amount
+        const amount = parseFloat(betAmount);
+        if (!amount || amount <= 0) {
+            toast.error('Invalid bet amount', {
+                description: 'Please enter a valid amount greater than 0',
+            });
+            return;
+        }
+
+        // Check if balance is loaded
+        if (balance === null || balance === undefined) {
+            toast.error('Loading balance...', {
+                description: 'Please wait a moment and try again',
+            });
+            return;
+        }
+
+        // Check for zero balance
+        if (balance === 0) {
+            toast.error('Insufficient balance - You have 0 SOL', {
+                description: 'Click the orange "Get 2 SOL" button in the navbar to get test SOL',
+                duration: 6000,
+            });
+            return;
+        }
+
+        // Check if enough balance
         if (amount > balance) {
-            toast.error(`Insufficient balance - You have ${balance.toFixed(4)} SOL`, {
-                description: `You need ${amount.toFixed(4)} SOL to place this bet`,
+            toast.error(`Insufficient balance`, {
+                description: `You have ${balance.toFixed(4)} SOL but need ${amount.toFixed(4)} SOL`,
                 duration: 5000,
             });
             return;

@@ -1,13 +1,10 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import AppWalletProvider from "./components/providers/AppWalletProvider";
 import Navbar from "./components/Navbar";
 import RecentlyJoinedBanner from "./components/RecentlyJoinedBanner";
 import Footer from "./components/Footer";
-
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
+import { ToastProvider } from "./components/providers/ToastProvider";
 
 export const metadata: Metadata = {
   title: "SolanaStreaks | Predict to Win",
@@ -21,8 +18,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.variable} ${jetbrains.variable} font-sans bg-background text-foreground antialiased selection:bg-primary/20`}>
+      <body className="font-sans bg-background text-foreground antialiased selection:bg-primary/20">
         <AppWalletProvider>
+          <ToastProvider />
           <div className="min-h-screen flex flex-col relative overflow-hidden">
             {/* Background Gradients */}
             <div className="fixed inset-0 z-0 pointer-events-none">
@@ -42,4 +40,5 @@ export default function RootLayout({
     </html>
   );
 }
+
 

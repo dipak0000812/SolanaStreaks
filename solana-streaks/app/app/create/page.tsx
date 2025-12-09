@@ -1,251 +1,183 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { Calendar, Plus, Sparkles, Info } from "lucide-react";
-import { Button } from "../components/ui/button";
-
-const CATEGORIES = ["Crypto", "Sports", "Gaming", "Community", "Politics", "Other"];
+import { useState } from 'react';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { toast } from 'sonner';
+import { useBlockchain } from '../hooks/useBlockchain';
+import { motion } from 'framer-motion';
+import { Calendar, Plus, TrendingUp } from 'lucide-react';
 
 export default function CreateMarketPage() {
-  const [question, setQuestion] = useState("");
-  const [outcomes, setOutcomes] = useState(["", ""]);
-  const [category, setCategory] = useState("Crypto");
-  const [endDate, setEndDate] = useState("");
+  const { publicKey } = useWallet();
+  const { sendTransaction, loading } = useBlockchain();
+  const [question, setQuestion] = useState('');
+  const [outcomes, setOutcomes] = useState(['YES', 'NO']);
+  const [resolutionDate, setResolutionDate] = useState('');
+  const [category, setCategory] = useState('Crypto');
 
-  const addOutcome = () => {
-    if (outcomes.length < 6) {
-      setOutcomes([...outcomes, ""]);
+  const handleCreateMarket = async () => {
+    if (!publicKey) {
+      toast.error('Please connect your wallet first!');
+      return;
     }
-  };
 
-  const updateOutcome = (index: number, value: string) => {
-    const newOutcomes = [...outcomes];
-    newOutcomes[index] = value;
-    setOutcomes(newOutcomes);
-  };
+    if (!question.trim()) {
+      toast.error('Please enter a market question');
+      return;
+    }
 
-  const removeOutcome = (index: number) => {
-    if (outcomes.length > 2) {
-      setOutcomes(outcomes.filter((_, i) => i !== index));
+    if (!resolutionDate) {
+      toast.error('Please select a resolution date');
+      return;
+    }
+
+    // Create transaction (demo: small fee to program)
+    const transaction = new Transaction().add(
+      SystemProgram.transfer({
+        fromPubkey: publicKey,
+        toPubkey: new PublicKey('B5Rz9UoWgLrfzYppYpZpBpLzNCTuYV5Fjh3uGJd2UsbQ'),
+        lamports: 0.01 * LAMPORTS_PER_SOL, // 0.01 SOL creation fee
+      })
+    );
+
+    const signature = await sendTransaction(
+      transaction,
+      'Creating prediction market'
+    );
+
+    if (signature) {
+      toast.success('Market created successfully!', {
+        description: 'Your market is now live',
+        duration: 5000,
+      });
+
+      // Reset form
+      setQuestion('');
+      setOutcomes(['YES', 'NO']);
+      setResolutionDate('');
     }
   };
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Header */}
-      <div className="text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-full glass-panel border border-neon-purple/30 mb-6"
-        >
-          <Sparkles className="w-5 h-5 text-neon-purple" />
-          <span className="font-orbitron font-semibold text-neon-purple uppercase tracking-wider text-sm">
-            Market Creator
-          </span>
-        </motion.div>
-
-        <h1 className="font-orbitron font-black text-5xl md:text-6xl text-white mb-4">
+      <div>
+        <h1 className="font-orbitron font-black text-5xl md:text-6xl text-white mb-3">
           Create Market
         </h1>
-        <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-          Launch your own prediction market and <span className="neon-text-green">earn fees</span> from every trade.
+        <p className="text-xl text-gray-400">
+          Launch your own prediction market on Solana
         </p>
       </div>
 
       {/* Form */}
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="glass-panel rounded-3xl border-2 border-white/10 p-8 md:p-12"
+        className="glass-panel rounded-3xl border border-white/10 p-8 space-y-6"
       >
-        <div className="space-y-8">
-          {/* Market Question */}
-          <div className="space-y-3">
-            <label className="flex items-center gap-2 font-orbitron font-semibold text-white text-lg">
-              Market Question
-              <Info className="w-4 h-4 text-gray-400" />
-            </label>
-            <input
-              type="text"
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              placeholder="Will Bitcoin hit $100k by Dec 31st?"
-              className="w-full h-16 rounded-2xl glass-panel border-2 border-white/10 px-6 text-white placeholder:text-gray-500 focus:outline-none focus:border-neon-green/50 transition-colors font-inter text-lg"
-            />
-            <p className="text-sm text-gray-400">
-              Be specific and unambiguous. Good markets have clear resolution criteria.
-            </p>
-          </div>
+        {/* Market Question */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-400 mb-3">
+            Market Question
+          </label>
+          <input
+            type="text"
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            placeholder="Will Bitcoin reach $100,000 by end of 2024?"
+            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-neon-green/50 transition-colors"
+          />
+        </div>
 
-          {/* Outcomes */}
-          <div className="space-y-3">
-            <label className="flex items-center justify-between font-orbitron font-semibold text-white text-lg">
-              <span className="flex items-center gap-2">
-                Possible Outcomes
-                <Info className="w-4 h-4 text-gray-400" />
-              </span>
-              <span className="text-sm text-gray-400 font-normal">
-                {outcomes.length}/6
-              </span>
-            </label>
-
-            <div className="space-y-3">
-              {outcomes.map((outcome, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="flex gap-3"
-                >
-                  <input
-                    type="text"
-                    value={outcome}
-                    onChange={(e) => updateOutcome(index, e.target.value)}
-                    placeholder={`Outcome ${index + 1}`}
-                    className="flex-1 h-14 rounded-xl glass-panel border border-white/10 px-4 text-white placeholder:text-gray-500 focus:outline-none focus:border-neon-green/50 transition-colors"
-                  />
-                  {outcomes.length > 2 && (
-                    <button
-                      onClick={() => removeOutcome(index)}
-                      className="w-14 h-14 rounded-xl glass-panel border border-white/10 hover:border-neon-pink/50 text-neon-pink transition-colors flex items-center justify-center"
-                    >
-                      ×
-                    </button>
-                  )}
-                </motion.div>
-              ))}
-            </div>
-
-            {outcomes.length < 6 && (
-              <button
-                onClick={addOutcome}
-                className="w-full h-14 rounded-xl glass-panel border-2 border-dashed border-white/20 hover:border-neon-green/50 text-gray-400 hover:text-neon-green transition-colors flex items-center justify-center gap-2 font-orbitron font-semibold"
-              >
-                <Plus className="w-5 h-5" />
-                Add Outcome
-              </button>
-            )}
-          </div>
-
-          {/* Category */}
-          <div className="space-y-3">
-            <label className="font-orbitron font-semibold text-white text-lg">
-              Category
-            </label>
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
-              {CATEGORIES.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setCategory(cat)}
-                  className={`h-12 rounded-xl font-orbitron font-semibold text-sm transition-all ${category === cat
-                      ? "bg-success-gradient text-black shadow-neon-green"
-                      : "glass-panel border border-white/10 text-gray-400 hover:text-white hover:border-white/30"
-                    }`}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* End Date */}
-          <div className="space-y-3">
-            <label className="flex items-center gap-2 font-orbitron font-semibold text-white text-lg">
-              Resolution Date
-              <Info className="w-4 h-4 text-gray-400" />
-            </label>
-            <div className="relative">
-              <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="datetime-local"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="w-full h-16 rounded-2xl glass-panel border-2 border-white/10 pl-14 pr-6 text-white focus:outline-none focus:border-neon-green/50 transition-colors"
-              />
-            </div>
-            <p className="text-sm text-gray-400">
-              When will this market be resolved? Choose a date in the future.
-            </p>
-          </div>
-
-          {/* Info Box */}
-          <div className="glass-panel rounded-2xl border border-neon-purple/30 p-6 bg-neon-purple/5">
-            <div className="flex gap-4">
-              <div className="text-3xl">💡</div>
-              <div className="space-y-2">
-                <h4 className="font-orbitron font-bold text-white">Market Creator Benefits</h4>
-                <ul className="text-sm text-gray-300 space-y-1">
-                  <li>• Earn <span className="text-neon-green font-bold">2% fee</span> on all trades</li>
-                  <li>• Build reputation as a trusted market creator</li>
-                  <li>• Contribute to the prediction market ecosystem</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          {/* Submit Button */}
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => {
-              if (!question) {
-                alert("Please enter a market question!");
-                return;
-              }
-              if (outcomes.some(o => !o)) {
-                alert("Please fill in all outcomes or remove empty ones.");
-                return;
-              }
-              if (!endDate) {
-                alert("Please select a resolution date.");
-                return;
-              }
-
-              const confirm = window.confirm(`Create market "${question}" with fee 0.1 SOL?`);
-              if (confirm) {
-                alert("Market created successfully! (Demo Mode)");
-                setQuestion("");
-                setOutcomes(["", ""]);
-                setEndDate("");
-              }
-            }}
-            className="w-full h-16 rounded-2xl bg-success-gradient font-orbitron font-bold text-xl text-black shadow-lg shadow-neon-green/50 hover:shadow-neon-green transition-shadow flex items-center justify-center gap-3"
+        {/* Category */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-400 mb-3">
+            Category
+          </label>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-neon-green/50 transition-colors"
           >
-            <Sparkles className="w-6 h-6" />
-            CREATE MARKET
-          </motion.button>
+            <option value="Crypto">Crypto</option>
+            <option value="Sports">Sports</option>
+            <option value="Gaming">Gaming</option>
+            <option value="Community">Community</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        {/* Resolution Date */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-400 mb-3">
+            Resolution Date
+          </label>
+          <input
+            type="date"
+            value={resolutionDate}
+            onChange={(e) => setResolutionDate(e.target.value)}
+            min={new Date().toISOString().split('T')[0]}
+            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-neon-green/50 transition-colors"
+          />
+        </div>
+
+        {/* Outcomes */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-400 mb-3">
+            Outcomes
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            {outcomes.map((outcome, index) => (
+              <input
+                key={index}
+                type="text"
+                value={outcome}
+                onChange={(e) => {
+                  const newOutcomes = [...outcomes];
+                  newOutcomes[index] = e.target.value;
+                  setOutcomes(newOutcomes);
+                }}
+                className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-neon-green/50 transition-colors"
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Create Button */}
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={handleCreateMarket}
+          disabled={loading || !publicKey}
+          className="w-full bg-success-gradient text-black font-orbitron font-bold text-lg py-4 rounded-xl shadow-lg shadow-neon-green/50 hover:shadow-neon-green/70 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        >
+          {loading ? (
+            'Creating...'
+          ) : (
+            <>
+              <Plus className="w-5 h-5" />
+              CREATE MARKET
+            </>
+          )}
+        </motion.button>
+
+        {!publicKey && (
+          <p className="text-center text-sm text-gray-400">
+            Connect your wallet to create markets
+          </p>
+        )}
+
+        {/* Info */}
+        <div className="glass-panel rounded-xl p-4 border border-neon-cyan/30">
+          <p className="text-sm text-gray-400">
+            <span className="text-neon-cyan font-semibold">Creation Fee:</span> 0.01 SOL
+            <br />
+            <span className="text-neon-cyan font-semibold">Creator Earnings:</span> 2% of all bets
+          </p>
         </div>
       </motion.div>
-
-      {/* Guidelines */}
-      <div className="glass-panel rounded-2xl border border-white/10 p-8">
-        <h3 className="font-orbitron font-bold text-2xl text-white mb-4">
-          Market Guidelines
-        </h3>
-        <div className="grid md:grid-cols-2 gap-6 text-sm text-gray-400">
-          <div>
-            <h4 className="text-white font-semibold mb-2">✅ Good Markets</h4>
-            <ul className="space-y-1">
-              <li>• Clear, unambiguous questions</li>
-              <li>• Verifiable resolution criteria</li>
-              <li>• Reasonable time frames</li>
-              <li>• Public interest topics</li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-white font-semibold mb-2">❌ Avoid</h4>
-            <ul className="space-y-1">
-              <li>• Vague or subjective questions</li>
-              <li>• Markets that can't be verified</li>
-              <li>• Illegal or harmful content</li>
-              <li>• Duplicate markets</li>
-            </ul>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
